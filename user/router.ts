@@ -116,6 +116,7 @@ router.put(
   ],
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
+    console.log(req.body);
     const user = await UserCollection.updateOne(userId, req.body);
     res.status(200).json({
       message: 'Your profile was updated successfully.',
@@ -144,6 +145,39 @@ router.delete(
     req.session.userId = undefined;
     res.status(200).json({
       message: 'Your account has been deleted successfully.'
+    });
+  }
+);
+
+/**
+ * Follow a user.
+ *
+ * @name POST /api/users/follow/
+ *
+ * @param {string} username - username of user to be followed
+ * @return {UserResponse} - The followed user
+ * @throws {403} - If the user is not logged in, or user is already following user
+ * @throws {404} - If username is invalid
+ *
+ */
+ router.post(
+  '/follow',
+  [
+    userValidator.isUserLoggedIn,
+    userValidator.isUserExists,
+    userValidator.isNotAlreadyFollowed,
+  ],
+  async (req: Request, res: Response) => {
+    const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
+    const followedUser = await UserCollection.findOneByUsername(req.body.username);
+
+    const user = await UserCollection.findOneByUserId(userId);
+    const newFollowing = [...user.following, req.body.username];
+    await UserCollection.updateOne(userId, { following: newFollowing });
+
+    res.status(201).json({
+      message: 'You successfully followed ' + req.body.username + '.',
+      user: util.constructUserResponse(followedUser),
     });
   }
 );

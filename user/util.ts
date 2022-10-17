@@ -1,4 +1,4 @@
-import type {HydratedDocument} from 'mongoose';
+import type {HydratedDocument, Types} from 'mongoose';
 import moment from 'moment';
 import type {User} from './model';
 
@@ -7,6 +7,7 @@ type UserResponse = {
   _id: string;
   username: string;
   dateJoined: string;
+  following: Array<string>;
 };
 
 /**
@@ -35,7 +36,8 @@ const constructUserResponse = (user: HydratedDocument<User>): UserResponse => {
   return {
     ...userCopy,
     _id: userCopy._id.toString(),
-    dateJoined: formatDate(user.dateJoined)
+    dateJoined: formatDate(user.dateJoined),
+    following: user.following,
   };
 };
 

@@ -351,9 +351,10 @@ Added routes below:
 - `400` if the reply or readmore content is empty or a stream of empty spaces
 - `413` if the reply content is more than 140 characters long
 
-#### `POST /api/like/:freetId?` - Like a freet
+#### `POST /api/like` - Like a freet
 
 **Body**
+- `freetId` _{string}_ - The freet to be liked
 
 **Returns**
 
@@ -381,9 +382,10 @@ Added routes below:
 - `404` if the freetId is invalid
 - `403` if the user has not already liked the freet
 
-#### `POST /api/reshare/:freetId?` - Reshare a freet
+#### `POST /api/reshare` - Reshare a freet
 
 **Body**
+- `freetId` _{string}_ - The freet to be reshared
 
 **Returns**
 
@@ -411,9 +413,10 @@ Added routes below:
 - `404` if the freetId is invalid
 - `403` if the user has not already reshared the freet
 
-#### `POST /api/follow/:userId?` - Follow a user
+#### `POST /api/users/follow` - Follow a user
 
 **Body**
+- `userId` _{string}_ - The user to be followed
 
 **Returns**
 
@@ -426,7 +429,7 @@ Added routes below:
 - `404` if the userId is invalid
 - `403` if the user is already following the user
 
-#### `DELETE /api/follow/:userId?` - Unfollow a user
+#### `DELETE /api/users/follow/:userId?` - Unfollow a user
 
 **Body**
 
@@ -471,10 +474,12 @@ Added routes below:
 
 **Throws**
 
-#### `POST /api/relevance/:freetId?/:categoryId?` - Vote on a freet's relevance in a category
+#### `POST /api/relevance` - Vote on a freet's relevance in a category
 
 **Body**
 
+- `freetId` _{string}_ - The freet to be voted on
+- `categoryId` _{string}_ - The category for the relevance
 - `relevance` _{boolean}_ - The user's relevance vote (true if relevant, false if irrelevant)
 
 **Returns**
@@ -485,7 +490,8 @@ Added routes below:
 **Throws**
 
 - `403` if the user is not logged in
-- `404` if the userId is invalid
+- `404` if the userId or freetId is invalid
+- `403` if the freet is not in the category
 - `403` if the user has already voted on the relevance of the freet in the category
 
 #### `DELETE /api/relevance/:freetId?/:categoryId?` - Remove vote on a freet's relevance in a category
@@ -500,7 +506,8 @@ Added routes below:
 **Throws**
 
 - `403` if the user is not logged in
-- `404` if the userId is invalid
+- `404` if the userId or freetId is invalid
+- `403` if the freet is not in the category
 - `403` if the user has not already voted on the relevance of the freet in the category
 
 #### `POST /api/collections/` - Create a collection

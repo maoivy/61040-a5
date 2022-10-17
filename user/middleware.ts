@@ -153,6 +153,56 @@ const isAuthorExists = async (req: Request, res: Response, next: NextFunction) =
   next();
 };
 
+/**
+ * Checks if a user with userId as id in req.body exists
+ */
+ const isUserExists = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.body.username) {
+    res.status(400).json({
+      error: 'Provided author username must be nonempty.'
+    });
+    return;
+  }
+
+  const user = await UserCollection.findOneByUsername(req.body.username as string);
+  if (!user) {
+    res.status(404).json({
+      error: `A user with username ${req.body.username as string} does not exist.`
+    });
+    return;
+  }
+
+  next();
+};
+
+/**
+ * Checks if a user with userId as id in req.body is already followed by current user
+ * Assumes current user exists and is logged in
+ */
+ const isNotAlreadyFollowed = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.body.username) {
+    res.status(400).json({
+      error: 'Provided author username must be nonempty.'
+    });
+    return;
+  }
+
+  if (req.session.userId) {
+    const user = await UserCollection.findOneByUserId(req.session.userId);
+
+    if (user) {
+      if (user.following.includes(req.body.username)) {
+        res.status(403).json({
+          error: 'You are already following ' + req.body.username + '.'
+        });
+        return;
+      }
+    }
+  }
+
+  next();
+};
+
 export {
   isCurrentSessionUserExists,
   isUserLoggedIn,
@@ -161,5 +211,7 @@ export {
   isAccountExists,
   isAuthorExists,
   isValidUsername,
-  isValidPassword
+  isValidPassword,
+  isUserExists,
+  isNotAlreadyFollowed,
 };
