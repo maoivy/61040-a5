@@ -429,7 +429,7 @@ Added routes below:
 - `404` if the userId is invalid
 - `403` if the user is already following the user
 
-#### `DELETE /api/users/follow/:userId?` - Unfollow a user
+#### `DELETE /api/users/follow/:username?` - Unfollow a user
 
 **Body**
 
@@ -441,7 +441,7 @@ Added routes below:
 **Throws**
 
 - `403` if the user is not logged in
-- `404` if the userId is invalid
+- `404` if the username is invalid
 - `403` if the user is not already following the user
 
 #### `GET /api/feed` - Get freets in feed

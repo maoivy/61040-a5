@@ -176,10 +176,10 @@ const isAuthorExists = async (req: Request, res: Response, next: NextFunction) =
 };
 
 /**
- * Checks if a user with userId as id in req.body is already followed by current user
+ * Checks that a user with username in req.body exists and is not already followed by current user
  * Assumes current user exists and is logged in
  */
- const isNotAlreadyFollowed = async (req: Request, res: Response, next: NextFunction) => {
+ const existsAndIsNotAlreadyFollowed = async (req: Request, res: Response, next: NextFunction) => {
   if (!req.body.username) {
     res.status(400).json({
       error: 'Provided author username must be nonempty.'
@@ -203,6 +203,34 @@ const isAuthorExists = async (req: Request, res: Response, next: NextFunction) =
   next();
 };
 
+/**
+ * Checks that a user with username in req.params exists and is already followed by current user
+ * Assumes current user exists and is logged in
+ */
+ const existsAndIsAlreadyFollowed = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.params.username) {
+    res.status(400).json({
+      error: 'Provided author username must be nonempty.'
+    });
+    return;
+  }
+
+  if (req.session.userId) {
+    const user = await UserCollection.findOneByUserId(req.session.userId);
+
+    if (user) {
+      if (!user.following.includes(req.params.username)) {
+        res.status(403).json({
+          error: 'You are not currently following ' + req.params.username + '.'
+        });
+        return;
+      }
+    }
+  }
+
+  next();
+};
+
 export {
   isCurrentSessionUserExists,
   isUserLoggedIn,
@@ -213,5 +241,6 @@ export {
   isValidUsername,
   isValidPassword,
   isUserExists,
-  isNotAlreadyFollowed,
+  existsAndIsNotAlreadyFollowed,
+  existsAndIsAlreadyFollowed,
 };

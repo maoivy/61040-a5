@@ -164,8 +164,7 @@ router.delete(
   '/follow',
   [
     userValidator.isUserLoggedIn,
-    userValidator.isUserExists,
-    userValidator.isNotAlreadyFollowed,
+    userValidator.existsAndIsNotAlreadyFollowed,
   ],
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
@@ -177,6 +176,38 @@ router.delete(
 
     res.status(201).json({
       message: 'You successfully followed ' + req.body.username + '.',
+      user: util.constructUserResponse(followedUser),
+    });
+  }
+);
+
+/**
+ * Follow a user.
+ *
+ * @name DELETE /api/users/follow/:username
+ *
+ * @param {string} username - username of user to be unfollowed
+ * @return {UserResponse} - The followed user
+ * @throws {403} - If the user is not logged in, or user is already following user
+ * @throws {404} - If username is invalid
+ *
+ */
+ router.delete(
+  '/follow/:username',
+  [
+    userValidator.isUserLoggedIn,
+    userValidator.existsAndIsAlreadyFollowed,
+  ],
+  async (req: Request, res: Response) => {
+    const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
+    const followedUser = await UserCollection.findOneByUsername(req.params.username);
+
+    const user = await UserCollection.findOneByUserId(userId);
+    const newFollowing = user.following.filter((username) => username !== req.params.username);
+    await UserCollection.updateOne(userId, { following: newFollowing });
+
+    res.status(201).json({
+      message: 'You successfully unfollowed ' + req.params.username + '.',
       user: util.constructUserResponse(followedUser),
     });
   }

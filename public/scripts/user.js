@@ -44,3 +44,9 @@ function followUser(fields) {
     .then(showResponse)
     .catch(showResponse);
 }
+
+function unfollowUser(fields) {
+  fetch(`/api/users/follow/${fields.username}`, {method: 'DELETE'})
+    .then(showResponse)
+    .catch(showResponse);
+}
