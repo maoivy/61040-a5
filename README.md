@@ -197,6 +197,8 @@ This renders the `index.html` file that will be used to interact with the backen
 **Body**
 
 - `content` _{string}_ - The content of the freet
+- `readmore` _{string}_ (optional) - The content of a read more on the freet
+- `categories` _{array}_ - The categories of the freet
 
 **Returns**
 
@@ -206,8 +208,9 @@ This renders the `index.html` file that will be used to interact with the backen
 **Throws**
 
 - `403` if the user is not logged in
-- `400` If the freet content is empty or a stream of empty spaces
-- `413` If the freet content is more than 140 characters long
+- `400` if the freet or readmore content is empty or a stream of empty spaces
+- `413` if the freet content is more than 140 characters long
+- `413` if any category is longer than 50 characters
 
 #### `DELETE /api/freets/:freetId?` - Delete an existing freet
 
@@ -225,7 +228,7 @@ This renders the `index.html` file that will be used to interact with the backen
 
 **Body**
 
-- `content` _{string}_ - The new content of the freet
+- `categories` _{array}_ - The new categories of the freet
 
 **Returns**
 
@@ -237,8 +240,7 @@ This renders the `index.html` file that will be used to interact with the backen
 - `403` if the user is not logged in
 - `404` if the freetId is invalid
 - `403` if the user is not the author of the freet
-- `400` if the new freet content is empty or a stream of empty spaces
-- `413` if the new freet content is more than 140 characters long
+- `413` if any category is longer than 24 characters
 
 #### `POST /api/users/session` - Sign in user
 
@@ -274,6 +276,7 @@ This renders the `index.html` file that will be used to interact with the backen
 
 - `username` _{string}_ - The user's username
 - `password` _{string}_ - The user's password
+- `bio` _{string}_ (optional) - The user's bio
 
 **Returns**
 
@@ -285,6 +288,7 @@ This renders the `index.html` file that will be used to interact with the backen
 - `403` if there is a user already logged in
 - `400` if username or password is in the wrong format
 - `409` if username is already in use
+- `413` if the bio is more than 140 characters long
 
 #### `PUT /api/users` - Update a user's profile
 
@@ -292,6 +296,7 @@ This renders the `index.html` file that will be used to interact with the backen
 
 - `username` _{string}_ - The user's username
 - `password` _{string}_ - The user's password
+- `bio` _{string}_ (optional) - The user's bio
 
 **Returns**
 
@@ -303,6 +308,7 @@ This renders the `index.html` file that will be used to interact with the backen
 - `403` if the user is not logged in
 - `400` if username or password is in the wrong format
 - `409` if the username is already in use
+- `413` if the bio is more than 140 characters long
 
 #### `DELETE /api/users` - Delete user
 
@@ -313,3 +319,241 @@ This renders the `index.html` file that will be used to interact with the backen
 **Throws**
 
 - `403` if the user is not logged in
+
+Added routes below:
+
+#### `GET /api/replies?freet=FREETID` - Get replies for freet
+
+**Returns**
+
+- An array of replies to the freet with id `freet`
+
+**Throws**
+
+- `400` if `freet` is not given
+- `404` if `freet` is not a valid freet id
+
+#### `POST /api/replies/:freetId?` - Make a reply to freet
+
+**Body**
+
+- `content` _{string}_ - The content of the reply
+- `readmore` _{string}_ (optional) - The content of a read more on the reply
+
+**Returns**
+
+- A success message
+- A object with the created reply
+
+**Throws**
+
+- `403` if the user is not logged in
+- `400` if the reply or readmore content is empty or a stream of empty spaces
+- `413` if the reply content is more than 140 characters long
+
+#### `POST /api/like/:freetId?` - Like a freet
+
+**Body**
+
+**Returns**
+
+- A success message
+- An object with the liked freet
+
+**Throws**
+
+- `403` if the user is not logged in
+- `404` if the freetId is invalid
+- `403` if the user already liked the freet
+
+#### `DELETE /api/like/:freetId?` - Unlike a freet
+
+**Body**
+
+**Returns**
+
+- A success message
+- An object with the unliked freet
+
+**Throws**
+
+- `403` if the user is not logged in
+- `404` if the freetId is invalid
+- `403` if the user has not already liked the freet
+
+#### `POST /api/reshare/:freetId?` - Reshare a freet
+
+**Body**
+
+**Returns**
+
+- A success message
+- An object with the reshared freet
+
+**Throws**
+
+- `403` if the user is not logged in
+- `404` if the freetId is invalid
+- `403` if the user already reshared the freet
+
+#### `DELETE /api/reshare/:freetId?` - Unreshare a freet
+
+**Body**
+
+**Returns**
+
+- A success message
+- An object with the unreshared freet
+
+**Throws**
+
+- `403` if the user is not logged in
+- `404` if the freetId is invalid
+- `403` if the user has not already reshared the freet
+
+#### `POST /api/follow/:userId?` - Follow a user
+
+**Body**
+
+**Returns**
+
+- A success message
+- An object with the followed user
+
+**Throws**
+
+- `403` if the user is not logged in
+- `404` if the userId is invalid
+- `403` if the user is already following the user
+
+#### `DELETE /api/follow/:userId?` - Unfollow a user
+
+**Body**
+
+**Returns**
+
+- A success message
+- An object with the unfollowed user
+
+**Throws**
+
+- `403` if the user is not logged in
+- `404` if the userId is invalid
+- `403` if the user is not already following the user
+
+#### `GET /api/feed` - Get freets in feed
+
+**Returns**
+
+- An array of freets in the user's feed
+
+**Throws**
+
+- `400` if `author` is not given
+- `404` if `author` is not a recognized username of any user
+
+#### `GET /api/category?category=CATEGORY` - Get freets in category
+
+**Returns**
+
+- An array of freets in the category `category`
+
+**Throws**
+
+- `400` if `category` is not given
+- `413` if `category` is longer than 24 characters
+
+#### `GET /api/category/trending` - Get worldwide trending categories for the past 24 hours.
+
+**Returns**
+
+- An array of trending categories
+
+**Throws**
+
+#### `POST /api/relevance/:freetId?/:categoryId?` - Vote on a freet's relevance in a category
+
+**Body**
+
+- `relevance` _{boolean}_ - The user's relevance vote (true if relevant, false if irrelevant)
+
+**Returns**
+
+- A success message
+- An object with the followed user
+
+**Throws**
+
+- `403` if the user is not logged in
+- `404` if the userId is invalid
+- `403` if the user has already voted on the relevance of the freet in the category
+
+#### `DELETE /api/relevance/:freetId?/:categoryId?` - Remove vote on a freet's relevance in a category
+
+**Body**
+
+**Returns**
+
+- A success message
+- An object with the unfollowed user
+
+**Throws**
+
+- `403` if the user is not logged in
+- `404` if the userId is invalid
+- `403` if the user has not already voted on the relevance of the freet in the category
+
+#### `POST /api/collections/` - Create a collection
+
+**Body**
+
+- `name` _{string}_ - The name of the collection, limited to 24 characters
+- `privacy` _{string}_ (optional) - The privacy setting for the collection (public, followers only, private); public by default
+- `freets` _{array}_ (optional) - The ids of freets to add to the collection; blank by default
+
+**Returns**
+
+- A success message
+- An object with the created collection
+
+**Throws**
+
+- `403` if the user is not logged in
+- `403` if the user already has a collection with that name
+- `413` if collection name is longer than 24 characters
+
+#### `PUT /api/collections/:collectionId?` - Update a collection
+
+**Body** _(no need to add fields that are not being changed)_
+
+- `name` _{string}_ - The name of the collection, limited to 24 characters
+- `privacy` _{string}_ (optional) - The privacy setting for the collection (public, followers only, private); public by default
+- `freets` _{array}_ (optional) - The ids of freets to add to the collection; blank by default
+
+**Returns**
+
+- A success message
+- An object with the updated collection
+
+**Throws**
+
+- `403` if the user is not logged in
+- `404` if the collectionId is invalid
+- `403` if the user is not the owner of the collection
+- `403` if the user already has a collection with that name
+- `413` if collection name is longer than 24 characters
+
+#### `DELETE /api/collections/:collectionId?` - Delete a collection
+
+**Body**
+
+**Returns**
+
+- A success message
+- An object with the deleted collection
+
+**Throws**
+
+- `403` if the user is not logged in
+- `404` if the collectionId is invalid
+- `403` if the user is not the owner of the collection
