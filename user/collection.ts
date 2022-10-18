@@ -1,6 +1,7 @@
 import type {HydratedDocument, Types} from 'mongoose';
 import type {User} from './model';
 import UserModel from './model';
+import FeedCollection from '../feed/collection'
 
 /**
  * This file contains a class with functionality to interact with users stored
@@ -24,6 +25,9 @@ class UserCollection {
 
     const user = new UserModel({username, password, dateJoined, following});
     await user.save(); // Saves user to MongoDB
+    
+    // create a feed
+    await FeedCollection.addOne(user._id);
     return user;
   }
 
