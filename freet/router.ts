@@ -4,6 +4,7 @@ import FreetCollection from './collection';
 import * as userValidator from '../user/middleware';
 import * as freetValidator from '../freet/middleware';
 import * as util from './util';
+import UserCollection from '../user/collection';
 
 const router = express.Router();
 
@@ -92,7 +93,7 @@ router.delete(
   '/:freetId?',
   [
     userValidator.isUserLoggedIn,
-    freetValidator.isFreetExists,
+    freetValidator.isFreetExistsParams,
     freetValidator.isValidFreetModifier
   ],
   async (req: Request, res: Response) => {
@@ -120,7 +121,7 @@ router.put(
   '/:freetId?',
   [
     userValidator.isUserLoggedIn,
-    freetValidator.isFreetExists,
+    freetValidator.isFreetExistsParams,
     freetValidator.isValidFreetModifier,
     freetValidator.isValidFreetContent
   ],
@@ -128,6 +129,76 @@ router.put(
     const freet = await FreetCollection.updateOne(req.params.freetId, req.body.content);
     res.status(200).json({
       message: 'Your freet was updated successfully.',
+      freet: util.constructFreetResponse(freet)
+    });
+  }
+);
+
+/**
+ * Like freet.
+ *
+ * @name POST /api/freets/like
+ *
+ * @param {string} freetId - The freet to like
+ * @return {FreetResponse} - The liked freet
+ * @throws {403} - If the user is not logged in or has already liked the freet
+ * @throws {404} - If the freet ID is invalid
+ */
+ router.post(
+  '/like',
+  [
+    userValidator.isUserLoggedIn,
+    freetValidator.isFreetExistsBody,
+    freetValidator.canLikeFreet,
+  ],
+  async (req: Request, res: Response) => {
+    const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
+    const user = await UserCollection.findOneByUserId(userId);
+    const freet = await FreetCollection.findOne(req.body.freetId);
+
+    const newLikes = [...user.likes, req.body.freetId];
+    await UserCollection.updateOne(userId, { likes: newLikes });
+
+    const newLikeCount = freet.likes + 1;
+    await FreetCollection.updateOne(req.body.freetId, { likes: newLikeCount });
+
+    res.status(201).json({
+      message: 'You have successfully liked freet ' + req.body.freetId + '.',
+      freet: util.constructFreetResponse(freet)
+    });
+  }
+);
+
+/**
+ * Unlike freet.
+ *
+ * @name DELETE /api/freets/like/:freetId
+ *
+ * @param {string} freetId - The freet to unlike
+ * @return {FreetResponse} - The liked freet
+ * @throws {403} - If the user is not logged in or has not already liked the freet
+ * @throws {404} - If the freet ID is invalid
+ */
+ router.delete(
+  '/like/:freetId?',
+  [
+    userValidator.isUserLoggedIn,
+    freetValidator.isFreetExistsParams,
+    freetValidator.canUnlikeFreet,
+  ],
+  async (req: Request, res: Response) => {
+    const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
+    const user = await UserCollection.findOneByUserId(userId);
+    const freet = await FreetCollection.findOne(req.body.freetId);
+
+    const newLikes = user.likes.filter((id) => id.toString() !== req.body.freetId);
+    await UserCollection.updateOne(userId, { likes: newLikes });
+
+    const newLikeCount = freet.likes - 1;
+    await FreetCollection.updateOne(req.body.freetId, { likes: newLikeCount });
+
+    res.status(201).json({
+      message: 'You have successfully unliked freet ' + req.body.freetId + '.',
       freet: util.constructFreetResponse(freet)
     });
   }

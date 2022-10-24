@@ -27,7 +27,7 @@ class FreetCollection {
       dateCreated: date,
       content,
       readmore,
-      dateModified: date
+      likes: 0,
     });
     await freet.save(); // Saves freet to MongoDB
     await FreetCollection.publishFreetToFollowers(freet._id.toString());
@@ -51,7 +51,7 @@ class FreetCollection {
    */
   static async findAll(): Promise<Array<HydratedDocument<Freet>>> {
     // Retrieves freets and sorts them from most to least recent
-    return FreetModel.find({}).sort({dateModified: -1}).populate('authorId');
+    return FreetModel.find({}).sort({dateCreated: -1}).populate('authorId');
   }
 
   /**
@@ -72,10 +72,12 @@ class FreetCollection {
    * @param {string} content - The new content of the freet
    * @return {Promise<HydratedDocument<Freet>>} - The newly updated freet
    */
-  static async updateOne(freetId: Types.ObjectId | string, content: string): Promise<HydratedDocument<Freet>> {
+  static async updateOne(freetId: Types.ObjectId | string, freetDetails: any): Promise<HydratedDocument<Freet>> {
     const freet = await FreetModel.findOne({_id: freetId});
-    freet.content = content;
-    freet.dateModified = new Date();
+    if (freetDetails.likes) {
+      freet.likes = freetDetails.likes as number;
+    }
+
     await freet.save();
     return freet.populate('authorId');
   }

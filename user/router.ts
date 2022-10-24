@@ -193,12 +193,12 @@ router.delete(
 );
 
 /**
- * Follow a user.
+ * Unfollow a user.
  *
  * @name DELETE /api/users/follow/:username
  *
  * @param {string} username - username of user to be unfollowed
- * @return {UserResponse} - The followed user
+ * @return {UserResponse} - The unfollowed user
  * @throws {403} - If the user is not logged in, or user is already following user
  * @throws {404} - If username is invalid
  *

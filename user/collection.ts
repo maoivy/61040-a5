@@ -23,8 +23,9 @@ class UserCollection {
     const dateJoined = new Date();
     const following = new Array<Types.ObjectId>();
     const followedBy = new Array<Types.ObjectId>();
+    const likes = new Array<Types.ObjectId>();
 
-    const user = new UserModel({username, password, dateJoined, bio, following, followedBy});
+    const user = new UserModel({username, password, dateJoined, bio, following, followedBy, likes});
     await user.save(); // Saves user to MongoDB
 
     // create a feed

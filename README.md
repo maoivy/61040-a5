@@ -351,7 +351,7 @@ Added routes below:
 - `400` if the reply or readmore content is empty or a stream of empty spaces
 - `413` if the reply content is more than 140 characters long
 
-#### `POST /api/like` - Like a freet
+#### `POST /api/freets/like` - Like a freet
 
 **Body**
 - `freetId` _{string}_ - The freet to be liked
@@ -367,7 +367,7 @@ Added routes below:
 - `404` if the freetId is invalid
 - `403` if the user already liked the freet
 
-#### `DELETE /api/like/:freetId?` - Unlike a freet
+#### `DELETE /api/freets/like/:freetId?` - Unlike a freet
 
 **Body**
 

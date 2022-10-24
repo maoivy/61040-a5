@@ -15,6 +15,7 @@ export type User = {
   bio: string;
   following: Array<Types.ObjectId>;
   followedBy: Array<Types.ObjectId>;
+  likes: Array<Types.ObjectId>;
 };
 
 // Mongoose schema definition for interfacing with a MongoDB table
@@ -47,6 +48,11 @@ const UserSchema = new Schema({
   },
   // Who the user is followed by
   followedBy: {
+    type: Array,
+    required: true
+  },
+  // Freets the user has liked
+  likes: {
     type: Array,
     required: true
   },

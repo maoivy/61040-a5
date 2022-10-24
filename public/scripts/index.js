@@ -43,6 +43,8 @@ const formsAndHandlers = {
   'follow-user': followUser,
   'unfollow-user': unfollowUser,
   'get-feed': getFeed,
+  'like-freet': likeFreet,
+  'unlike-freet': unlikeFreet,
 };
 
 // Attach handlers to forms
