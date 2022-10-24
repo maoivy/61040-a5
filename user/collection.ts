@@ -19,13 +19,13 @@ class UserCollection {
    * @param {string} password - The password of the user
    * @return {Promise<HydratedDocument<User>>} - The newly created user
    */
-  static async addOne(username: string, password: string): Promise<HydratedDocument<User>> {
+  static async addOne(username: string, password: string, bio: string): Promise<HydratedDocument<User>> {
     const dateJoined = new Date();
     const following = [username];
 
-    const user = new UserModel({username, password, dateJoined, following});
+    const user = new UserModel({username, password, dateJoined, bio, following});
     await user.save(); // Saves user to MongoDB
-    
+
     // create a feed
     await FeedCollection.addOne(user._id);
     return user;
@@ -84,6 +84,10 @@ class UserCollection {
 
     if (userDetails.following) {
       user.following = userDetails.following as Array<string>;
+    }
+
+    if (userDetails.bio) {
+      user.bio = userDetails.bio as string;
     }
 
     await user.save();

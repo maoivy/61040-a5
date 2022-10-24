@@ -71,10 +71,12 @@ router.delete(
  *
  * @param {string} username - username of user
  * @param {string} password - user's password
+ * @param {string} bio - user's bio
  * @return {UserResponse} - The created user
  * @throws {403} - If there is a user already logged in
  * @throws {409} - If username is already taken
  * @throws {400} - If password or username is not in correct format
+ * @throws {413} - If bio is longer than 140 characters
  *
  */
 router.post(
@@ -83,10 +85,11 @@ router.post(
     userValidator.isUserLoggedOut,
     userValidator.isValidUsername,
     userValidator.isUsernameNotAlreadyInUse,
-    userValidator.isValidPassword
+    userValidator.isValidPassword,
+    userValidator.bioNotTooLong,
   ],
   async (req: Request, res: Response) => {
-    const user = await UserCollection.addOne(req.body.username, req.body.password);
+    const user = await UserCollection.addOne(req.body.username, req.body.password, req.body.bio);
     req.session.userId = user._id.toString();
     res.status(201).json({
       message: `Your account was created successfully. You have been logged in as ${user.username}`,
@@ -102,6 +105,7 @@ router.post(
  *
  * @param {string} username - The user's new username
  * @param {string} password - The user's new password
+ * @param {string} bio - The user's new bio
  * @return {UserResponse} - The updated user
  * @throws {403} - If user is not logged in
  * @throws {409} - If username already taken
@@ -111,13 +115,14 @@ router.put(
   '/',
   [
     userValidator.isUserLoggedIn,
-    userValidator.isValidUsername,
-    userValidator.isUsernameNotAlreadyInUse,
-    userValidator.isValidPassword
+    userValidator.isBlankOrValidUsername,
+    userValidator.isUsernameBlankOrNotAlreadyInUse,
+    userValidator.isBlankOrValidPassword,
+    userValidator.bioNotTooLong,
   ],
   async (req: Request, res: Response) => {
-    const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
     console.log(req.body);
+    const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
     const user = await UserCollection.updateOne(userId, req.body);
     res.status(200).json({
       message: 'Your profile was updated successfully.',

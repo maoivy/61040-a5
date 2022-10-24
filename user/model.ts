@@ -12,6 +12,7 @@ export type User = {
   username: string;
   password: string;
   dateJoined: Date;
+  bio: string;
   following: Array<string>;
 };
 
@@ -34,10 +35,15 @@ const UserSchema = new Schema({
     type: Date,
     required: true
   },
+  // The user's bio
+  bio: {
+    type: String,
+  },
+  // Who the user is following
   following: {
     type: Array,
     required: true
-  }
+  },
 });
 
 const UserModel = model<User>('User', UserSchema);

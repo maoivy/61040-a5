@@ -27,6 +27,7 @@ const isCurrentSessionUserExists = async (req: Request, res: Response, next: Nex
 
 /**
  * Checks if a username in req.body is valid, that is, it matches the username regex
+ * For creating a new user
  */
 const isValidUsername = (req: Request, res: Response, next: NextFunction) => {
   const usernameRegex = /^\w+$/i;
@@ -43,9 +44,59 @@ const isValidUsername = (req: Request, res: Response, next: NextFunction) => {
 };
 
 /**
+ * Checks if a username in req.body is valid, that is, it matches the username regex
+ * For updating an existing user
+ */
+ const isBlankOrValidUsername = (req: Request, res: Response, next: NextFunction) => {
+  // If the username is blank, no update will be done
+  if (!req.body.username) {
+    next();
+    return;
+  }
+
+  const usernameRegex = /^\w+$/i;
+  if (!usernameRegex.test(req.body.username)) {
+    res.status(400).json({
+      error: {
+        username: 'Username must be a nonempty alphanumeric string.'
+      }
+    });
+    return;
+  }
+
+  next();
+};
+
+
+/**
  * Checks if a password in req.body is valid, that is, at 6-50 characters long without any spaces
+ * For creating a new user
  */
 const isValidPassword = (req: Request, res: Response, next: NextFunction) => {
+  const passwordRegex = /^\S+$/;
+  if (!passwordRegex.test(req.body.password)) {
+    res.status(400).json({
+      error: {
+        password: 'Password must be a nonempty string.'
+      }
+    });
+    return;
+  }
+
+  next();
+};
+
+/**
+ * Checks if a password in req.body is valid, that is, at 6-50 characters long without any spaces
+ * For updating an existing user
+ */
+ const isBlankOrValidPassword = (req: Request, res: Response, next: NextFunction) => {
+  // If the password is blank, no update will be done
+  if (!req.body.password) {
+    next();
+    return;
+  }
+
   const passwordRegex = /^\S+$/;
   if (!passwordRegex.test(req.body.password)) {
     res.status(400).json({
@@ -83,8 +134,36 @@ const isAccountExists = async (req: Request, res: Response, next: NextFunction) 
 
 /**
  * Checks if a username in req.body is already in use
+ * For creating a new user
  */
 const isUsernameNotAlreadyInUse = async (req: Request, res: Response, next: NextFunction) => {
+  const user = await UserCollection.findOneByUsername(req.body.username);
+
+  // If the current session user wants to change their username to one which matches
+  // the current one irrespective of the case, we should allow them to do so
+  if (!user || (user?._id.toString() === req.session.userId)) {
+    next();
+    return;
+  }
+
+  res.status(409).json({
+    error: {
+      username: 'An account with this username already exists.'
+    }
+  });
+};
+
+/**
+ * Checks if a username in req.body is blank or already in use
+ * For updating an existing user
+ */
+ const isUsernameBlankOrNotAlreadyInUse = async (req: Request, res: Response, next: NextFunction) => {
+  // If the username is blank, no update will be done
+  if (!req.body.username) {
+    next();
+    return;
+  }
+
   const user = await UserCollection.findOneByUsername(req.body.username);
 
   // If the current session user wants to change their username to one which matches
@@ -231,16 +310,34 @@ const isAuthorExists = async (req: Request, res: Response, next: NextFunction) =
   next();
 };
 
+/**
+ * Checks if the content of the bio in req.body is no more than 140 characters
+ */
+ const bioNotTooLong = (req: Request, res: Response, next: NextFunction) => {
+  if (req.body.bio > 140) {
+    res.status(413).json({
+      error: 'Bio must be no more than 140 characters.'
+    });
+    return;
+  }
+
+  next();
+};
+
 export {
   isCurrentSessionUserExists,
   isUserLoggedIn,
   isUserLoggedOut,
+  isUsernameBlankOrNotAlreadyInUse,
   isUsernameNotAlreadyInUse,
   isAccountExists,
   isAuthorExists,
   isValidUsername,
+  isBlankOrValidUsername,
   isValidPassword,
+  isBlankOrValidPassword,
   isUserExists,
   existsAndIsNotAlreadyFollowed,
   existsAndIsAlreadyFollowed,
+  bioNotTooLong,
 };

@@ -6,6 +6,7 @@ import type {User} from './model';
 type UserResponse = {
   _id: string;
   username: string;
+  bio: string;
   dateJoined: string;
   following: Array<string>;
 };
@@ -36,6 +37,7 @@ const constructUserResponse = (user: HydratedDocument<User>): UserResponse => {
   return {
     ...userCopy,
     _id: userCopy._id.toString(),
+    bio: user.bio,
     dateJoined: formatDate(user.dateJoined),
     following: user.following,
   };
