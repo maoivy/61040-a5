@@ -171,6 +171,7 @@ router.delete(
   [
     userValidator.isUserLoggedIn,
     userValidator.existsAndIsNotAlreadyFollowed,
+    userValidator.isNotSelfBody,
   ],
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
@@ -205,6 +206,7 @@ router.delete(
   [
     userValidator.isUserLoggedIn,
     userValidator.existsAndIsAlreadyFollowed,
+    userValidator.isNotSelfParams,
   ],
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn

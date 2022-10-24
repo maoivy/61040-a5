@@ -324,6 +324,48 @@ const isAuthorExists = async (req: Request, res: Response, next: NextFunction) =
   next();
 };
 
+/**
+ * Checks that a user with username in req.params is not the user themselves
+ * Assumes current user exists and is logged in
+ */
+ const isNotSelfParams = async (req: Request, res: Response, next: NextFunction) => {
+  if (req.session.userId) {
+    const user = await UserCollection.findOneByUserId(req.session.userId);
+
+    if (user) {
+      if (user.username == req.params.username) {
+        res.status(403).json({
+          error: 'You cannot unfollow yourself.'
+        });
+        return;
+      }
+    }
+  }
+
+  next();
+};
+
+/**
+ * Checks that a user with username in req.body is not the user themselves
+ * Assumes current user exists and is logged in
+ */
+ const isNotSelfBody = async (req: Request, res: Response, next: NextFunction) => {
+  if (req.session.userId) {
+    const user = await UserCollection.findOneByUserId(req.session.userId);
+
+    if (user) {
+      if (user.username == req.body.username) {
+        res.status(403).json({
+          error: 'You cannot follow yourself.'
+        });
+        return;
+      }
+    }
+  }
+
+  next();
+};
+
 export {
   isCurrentSessionUserExists,
   isUserLoggedIn,
@@ -340,4 +382,6 @@ export {
   existsAndIsNotAlreadyFollowed,
   existsAndIsAlreadyFollowed,
   bioNotTooLong,
+  isNotSelfParams,
+  isNotSelfBody,
 };
