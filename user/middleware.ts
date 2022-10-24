@@ -268,9 +268,10 @@ const isAuthorExists = async (req: Request, res: Response, next: NextFunction) =
 
   if (req.session.userId) {
     const user = await UserCollection.findOneByUserId(req.session.userId);
+    const followedUser = await UserCollection.findOneByUsername(req.body.username);
 
     if (user) {
-      if (user.following.includes(req.body.username)) {
+      if (user.following.includes(followedUser._id)) {
         res.status(403).json({
           error: 'You are already following ' + req.body.username + '.'
         });
@@ -296,9 +297,10 @@ const isAuthorExists = async (req: Request, res: Response, next: NextFunction) =
 
   if (req.session.userId) {
     const user = await UserCollection.findOneByUserId(req.session.userId);
+    const followedUser = await UserCollection.findOneByUsername(req.params.username)
 
     if (user) {
-      if (!user.following.includes(req.params.username)) {
+      if (!user.following.includes(followedUser._id)) {
         res.status(403).json({
           error: 'You are not currently following ' + req.params.username + '.'
         });

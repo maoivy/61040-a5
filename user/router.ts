@@ -178,8 +178,10 @@ router.delete(
     const followedUser = await UserCollection.findOneByUsername(req.body.username);
 
     const user = await UserCollection.findOneByUserId(userId);
-    const newFollowing = [...user.following, req.body.username];
+    const newFollowing = [...user.following, followedUser._id];
     await UserCollection.updateOne(userId, { following: newFollowing });
+    const newFollowedBy = [...followedUser.followedBy, req.session.userId];
+    await UserCollection.updateOne(followedUser._id, { followedBy: newFollowedBy });
 
     await FeedCollection.updateFeedByAuthor(userId, followedUser._id);
 
@@ -213,8 +215,10 @@ router.delete(
     const followedUser = await UserCollection.findOneByUsername(req.params.username);
 
     const user = await UserCollection.findOneByUserId(userId);
-    const newFollowing = user.following.filter((username) => username !== req.params.username);
+    const newFollowing = user.following.filter((id) => id !== followedUser._id);
     await UserCollection.updateOne(userId, { following: newFollowing });
+    const newFollowedBy = followedUser.followedBy.filter((id) => id !== req.session.userId);
+    await UserCollection.updateOne(followedUser._id, { followedBy: newFollowedBy });
 
     await FeedCollection.deleteFromFeedByAuthor(userId, followedUser._id);
 

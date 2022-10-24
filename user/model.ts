@@ -13,7 +13,8 @@ export type User = {
   password: string;
   dateJoined: Date;
   bio: string;
-  following: Array<string>;
+  following: Array<Types.ObjectId>;
+  followedBy: Array<Types.ObjectId>;
 };
 
 // Mongoose schema definition for interfacing with a MongoDB table
@@ -41,6 +42,11 @@ const UserSchema = new Schema({
   },
   // Who the user is following
   following: {
+    type: Array,
+    required: true
+  },
+  // Who the user is followed by
+  followedBy: {
     type: Array,
     required: true
   },
