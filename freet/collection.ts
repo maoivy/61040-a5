@@ -2,6 +2,7 @@ import type {HydratedDocument, Types} from 'mongoose';
 import type {Freet} from './model';
 import FreetModel from './model';
 import UserCollection from '../user/collection';
+import FeedCollection from '../feed/collection';
 
 /**
  * This files contains a class that has the functionality to explore freets
@@ -29,6 +30,7 @@ class FreetCollection {
       dateModified: date
     });
     await freet.save(); // Saves freet to MongoDB
+    await FreetCollection.publishFreetToFollowers(freet._id.toString());
     return freet.populate('authorId');
   }
 
@@ -85,6 +87,7 @@ class FreetCollection {
    * @return {Promise<Boolean>} - true if the freet has been deleted, false otherwise
    */
   static async deleteOne(freetId: Types.ObjectId | string): Promise<boolean> {
+    await FreetCollection.deleteFreetFromFollowers(freetId);
     const freet = await FreetModel.deleteOne({_id: freetId});
     return freet !== null;
   }
@@ -96,6 +99,52 @@ class FreetCollection {
    */
   static async deleteMany(authorId: Types.ObjectId | string): Promise<void> {
     await FreetModel.deleteMany({authorId});
+  }
+
+  /**
+   * Update followers' (and own) feeds with new freet
+   *
+   * @param {string} freetId - The freetId of the freet to publish
+   * @return {Promise<HydratedDocument<Feed>>} - The updated user
+   */
+  static async publishFreetToFollowers(freetId: Types.ObjectId | string): Promise<void> {
+    const freet = await FreetModel.findOne({_id: freetId});
+    const author = await UserCollection.findOneByUserId(freet.authorId);
+    
+    if (freet) {
+      for (const followerId of author.followedBy) {
+        const feed = await FeedCollection.findFeedByUserId(followerId);
+        feed.freets = [...feed.freets, freet]
+        await feed.save();
+      }
+
+      const feed = await FeedCollection.findFeedByUserId(author._id);
+      feed.freets = [...feed.freets, freet]
+      await feed.save();
+    }
+  }
+
+  /**
+   * Delete a deleted freet from followers' (and own) feeds
+   *
+   * @param {string} freetId - The freetId of the freet to delete
+   * @return {Promise<HydratedDocument<Feed>>} - The updated user
+   */
+   static async deleteFreetFromFollowers(freetId: Types.ObjectId | string): Promise<void> {
+    const freet = await FreetModel.findOne({_id: freetId});
+    const author = await UserCollection.findOneByUserId(freet.authorId);
+    
+    if (freet) {
+      for (const followerId of author.followedBy) {
+        const feed = await FeedCollection.findFeedByUserId(followerId);
+        feed.freets = feed.freets.filter((feedFreet) => feedFreet._id != freetId)
+        await feed.save();
+      }
+
+      const feed = await FeedCollection.findFeedByUserId(author._id);
+      feed.freets = feed.freets.filter((feedFreet) => feedFreet._id != freetId)
+      await feed.save();
+    }
   }
 }
 
