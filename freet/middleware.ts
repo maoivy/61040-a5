@@ -59,8 +59,27 @@ const isValidFreetModifier = async (req: Request, res: Response, next: NextFunct
   next();
 };
 
+/**
+ * Checks if the readmore of the freet in req.body is valid, i.e not a stream of empty
+ * spaces and not more than 140 characters
+ */
+ const isValidReadMore = (req: Request, res: Response, next: NextFunction) => {
+  const {readmore} = req.body as {readmore: string};
+
+  // blank readmores will be treated as the freet not having a readmore
+  if (readmore.length > 600) {
+    res.status(413).json({
+      error: 'Read more content must be no more than 600 characters.'
+    });
+    return;
+  }
+
+  next();
+};
+
 export {
   isValidFreetContent,
   isFreetExists,
-  isValidFreetModifier
+  isValidFreetModifier,
+  isValidReadMore,
 };

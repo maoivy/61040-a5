@@ -13,6 +13,7 @@ export type Freet = {
   authorId: Types.ObjectId;
   dateCreated: Date;
   content: string;
+  readmore: string;
   dateModified: Date;
 };
 
@@ -21,6 +22,7 @@ export type PopulatedFreet = {
   authorId: User;
   dateCreated: Date;
   content: string;
+  readmore: string;
   dateModified: Date;
 };
 
@@ -44,6 +46,10 @@ const FreetSchema = new Schema<Freet>({
   content: {
     type: String,
     required: true
+  },
+  // The readmore of the freet
+  readmore: {
+    type: String,
   },
   // The date the freet was modified
   dateModified: {
