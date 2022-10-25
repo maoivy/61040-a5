@@ -30,7 +30,6 @@ class FreetCollection {
       likes: 0,
     });
     await freet.save(); // Saves freet to MongoDB
-    await FreetCollection.publishFreetToFollowers(freet._id.toString());
     return freet.populate('authorId');
   }
 
@@ -55,7 +54,7 @@ class FreetCollection {
   }
 
   /**
-   * Get all the freets in by given author
+   * Get all the freets in by given author username
    *
    * @param {string} username - The username of author of the freets
    * @return {Promise<HydratedDocument<Freet>[]>} - An array of all of the freets
@@ -66,15 +65,25 @@ class FreetCollection {
   }
 
   /**
-   * Update a freet with the new content
+   * Get all the freets in by given author id
+   *
+   * @param {string} username - The username of author of the freets
+   * @return {Promise<HydratedDocument<Freet>[]>} - An array of all of the freets
+   */
+   static async findAllByUserId(userId: Types.ObjectId | string): Promise<Array<HydratedDocument<Freet>>> {
+    return FreetModel.find({authorId: userId}).populate('authorId');
+  }
+
+  /**
+   * Update a freet with the new content (like/reshare/reply count, categories)
    *
    * @param {string} freetId - The id of the freet to be updated
-   * @param {string} content - The new content of the freet
+   * @param {string} freetDetails - The updated detalils of the freet
    * @return {Promise<HydratedDocument<Freet>>} - The newly updated freet
    */
   static async updateOne(freetId: Types.ObjectId | string, freetDetails: any): Promise<HydratedDocument<Freet>> {
     const freet = await FreetModel.findOne({_id: freetId});
-    if (freetDetails.likes) {
+    if (freetDetails.likes !== undefined) {
       freet.likes = freetDetails.likes as number;
     }
 
@@ -89,7 +98,6 @@ class FreetCollection {
    * @return {Promise<Boolean>} - true if the freet has been deleted, false otherwise
    */
   static async deleteOne(freetId: Types.ObjectId | string): Promise<boolean> {
-    await FreetCollection.deleteFreetFromFollowers(freetId);
     const freet = await FreetModel.deleteOne({_id: freetId});
     return freet !== null;
   }
@@ -103,51 +111,51 @@ class FreetCollection {
     await FreetModel.deleteMany({authorId});
   }
 
-  /**
-   * Update followers' (and own) feeds with new freet
-   *
-   * @param {string} freetId - The freetId of the freet to publish
-   * @return {Promise<HydratedDocument<Feed>>} - The updated user
-   */
-  static async publishFreetToFollowers(freetId: Types.ObjectId | string): Promise<void> {
-    const freet = await FreetModel.findOne({_id: freetId});
-    const author = await UserCollection.findOneByUserId(freet.authorId);
+  // /**
+  //  * Update followers' (and own) feeds with new freet
+  //  *
+  //  * @param {string} freetId - The freetId of the freet to publish
+  //  * @return {Promise<HydratedDocument<Feed>>} - The updated user
+  //  */
+  // static async publishFreetToFollowers(freetId: Types.ObjectId | string): Promise<void> {
+  //   const freet = await FreetModel.findOne({_id: freetId});
+  //   const author = await UserCollection.findOneByUserId(freet.authorId);
     
-    if (freet) {
-      for (const followerId of author.followedBy) {
-        const feed = await FeedCollection.findFeedByUserId(followerId);
-        feed.freets = [...feed.freets, freet]
-        await feed.save();
-      }
+  //   if (freet) {
+  //     for (const followerId of author.followedBy) {
+  //       const feed = await FeedCollection.findFeedByUserId(followerId);
+  //       feed.freets = [...feed.freets, freet]
+  //       await feed.save();
+  //     }
 
-      const feed = await FeedCollection.findFeedByUserId(author._id);
-      feed.freets = [...feed.freets, freet]
-      await feed.save();
-    }
-  }
+  //     const feed = await FeedCollection.findFeedByUserId(author._id);
+  //     feed.freets = [...feed.freets, freet]
+  //     await feed.save();
+  //   }
+  // }
 
-  /**
-   * Delete a deleted freet from followers' (and own) feeds
-   *
-   * @param {string} freetId - The freetId of the freet to delete
-   * @return {Promise<HydratedDocument<Feed>>} - The updated user
-   */
-   static async deleteFreetFromFollowers(freetId: Types.ObjectId | string): Promise<void> {
-    const freet = await FreetModel.findOne({_id: freetId});
-    const author = await UserCollection.findOneByUserId(freet.authorId);
+  // /**
+  //  * Delete a deleted freet from followers' (and own) feeds
+  //  *
+  //  * @param {string} freetId - The freetId of the freet to delete
+  //  * @return {Promise<HydratedDocument<Feed>>} - The updated user
+  //  */
+  //  static async deleteFreetFromFollowers(freetId: Types.ObjectId | string): Promise<void> {
+  //   const freet = await FreetModel.findOne({_id: freetId});
+  //   const author = await UserCollection.findOneByUserId(freet.authorId);
     
-    if (freet) {
-      for (const followerId of author.followedBy) {
-        const feed = await FeedCollection.findFeedByUserId(followerId);
-        feed.freets = feed.freets.filter((feedFreet) => feedFreet._id != freetId)
-        await feed.save();
-      }
+  //   if (freet) {
+  //     for (const followerId of author.followedBy) {
+  //       const feed = await FeedCollection.findFeedByUserId(followerId);
+  //       feed.freets = feed.freets.filter((feedFreet) => feedFreet._id != freetId)
+  //       await feed.save();
+  //     }
 
-      const feed = await FeedCollection.findFeedByUserId(author._id);
-      feed.freets = feed.freets.filter((feedFreet) => feedFreet._id != freetId)
-      await feed.save();
-    }
-  }
+  //     const feed = await FeedCollection.findFeedByUserId(author._id);
+  //     feed.freets = feed.freets.filter((feedFreet) => feedFreet._id != freetId)
+  //     await feed.save();
+  //   }
+  // }
 }
 
 export default FreetCollection;

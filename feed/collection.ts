@@ -37,6 +37,20 @@ class FeedCollection {
     return FeedModel.findOne({ userId });
   }
 
+  // /**
+  //  * Update copies of freet with id freetId in feeds
+  //  *
+  //  * @param {string} userId - The userId of the user
+  //  * @param {Object} freetDetails - Freet details to update (limited to like/reshare/reply counts and categories)
+  //  * @return {Promise<void>} - The updated freet
+  //  */
+  //  static async updateFeedsWithFreet(freetId: Types.ObjectId | string, freetDetails: any): Promise<void> {
+  //   if (freetDetails.likes) {
+  //     const likes = freetDetails.likes;
+  //     await FeedModel.updateMany({}, { $set: { "freets.$[freet].likes" : likes } }, { arrayFilters: [ { 'freet._id': freetId } ]});
+  //   }
+  // }
+
   /**
    * Update feed with freets of user
    *

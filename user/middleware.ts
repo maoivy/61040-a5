@@ -316,7 +316,7 @@ const isAuthorExists = async (req: Request, res: Response, next: NextFunction) =
  * Checks if the content of the bio in req.body is no more than 140 characters
  */
  const bioNotTooLong = (req: Request, res: Response, next: NextFunction) => {
-  if (req.body.bio.length > 140) {
+  if (req.body.bio && req.body.bio.length > 140) {
     res.status(413).json({
       error: 'Bio must be no more than 140 characters.'
     });

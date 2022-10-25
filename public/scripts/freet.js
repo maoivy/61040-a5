@@ -5,7 +5,7 @@
  * e.g. for createUser, fields has properites 'username' and 'password'
  */
 
-function viewAllFreets(fields) {
+function getFreets(fields) {
   fetch('/api/freets')
     .then(showResponse)
     .catch(showResponse);

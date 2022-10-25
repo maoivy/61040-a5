@@ -4,14 +4,23 @@ import FreetCollection from './collection';
 import * as userValidator from '../user/middleware';
 import * as freetValidator from '../freet/middleware';
 import * as util from './util';
+import type {Freet} from './model';
 import UserCollection from '../user/collection';
 
 const router = express.Router();
 
 /**
- * Get all the freets
+ * Get freets from home feed
  *
  * @name GET /api/freets
+ *
+ * @return {FreetResponse[]} - A list of all the freets sorted in descending
+ *                      order by date modified
+ */
+/**
+ * Get filtered freets from home feed
+ *
+ * @name GET /api/freets?filterId=filter
  *
  * @return {FreetResponse[]} - A list of all the freets sorted in descending
  *                      order by date modified
@@ -28,6 +37,9 @@ const router = express.Router();
  */
 router.get(
   '/',
+  [
+    userValidator.isUserLoggedIn,
+  ],
   async (req: Request, res: Response, next: NextFunction) => {
     // Check if authorId query parameter was supplied
     if (req.query.author !== undefined) {
@@ -35,8 +47,15 @@ router.get(
       return;
     }
 
-    const allFreets = await FreetCollection.findAll();
-    const response = allFreets.map(util.constructFreetResponse);
+    const userId = (req.session.userId as string)
+    const user = await UserCollection.findOneByUserId(userId);
+    const feed = Array<Freet>();
+
+    for (const followedId of [...user.following, userId]) {
+      const freets = await FreetCollection.findAllByUserId(followedId);
+      feed.push(...freets);
+    }
+    const response = feed.map(util.constructFreetResponse);
     res.status(200).json(response);
   },
   [
@@ -97,6 +116,8 @@ router.delete(
     freetValidator.isValidFreetModifier
   ],
   async (req: Request, res: Response) => {
+    // remove it from the likes list of any users that liked it
+    await UserCollection.deleteLikesByFreetId(req.params.freetId);
     await FreetCollection.deleteOne(req.params.freetId);
     res.status(200).json({
       message: 'Your freet was deleted successfully.'
@@ -156,15 +177,12 @@ router.put(
     const user = await UserCollection.findOneByUserId(userId);
     const freet = await FreetCollection.findOne(req.body.freetId);
 
-    const newLikes = [...user.likes, req.body.freetId];
-    await UserCollection.updateOne(userId, { likes: newLikes });
-
-    const newLikeCount = freet.likes + 1;
-    await FreetCollection.updateOne(req.body.freetId, { likes: newLikeCount });
+    await UserCollection.updateOne(userId, { likes: [...user.likes, req.body.freetId] });
+    const updatedFreet = await FreetCollection.updateOne(req.body.freetId, { likes: freet.likes + 1 });
 
     res.status(201).json({
       message: 'You have successfully liked freet ' + req.body.freetId + '.',
-      freet: util.constructFreetResponse(freet)
+      freet: util.constructFreetResponse(updatedFreet)
     });
   }
 );
@@ -189,17 +207,14 @@ router.put(
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
     const user = await UserCollection.findOneByUserId(userId);
-    const freet = await FreetCollection.findOne(req.body.freetId);
+    const freet = await FreetCollection.findOne(req.params.freetId);
 
-    const newLikes = user.likes.filter((id) => id.toString() !== req.body.freetId);
-    await UserCollection.updateOne(userId, { likes: newLikes });
-
-    const newLikeCount = freet.likes - 1;
-    await FreetCollection.updateOne(req.body.freetId, { likes: newLikeCount });
+    await UserCollection.updateOne(userId, { likes: user.likes.filter((id) => id.toString() !== req.params.freetId) });
+    const updatedFreet = await FreetCollection.updateOne(req.params.freetId, { likes: freet.likes - 1 });
 
     res.status(201).json({
-      message: 'You have successfully unliked freet ' + req.body.freetId + '.',
-      freet: util.constructFreetResponse(freet)
+      message: 'You have successfully unliked freet ' + req.params.freetId + '.',
+      freet: util.constructFreetResponse(updatedFreet)
     });
   }
 );

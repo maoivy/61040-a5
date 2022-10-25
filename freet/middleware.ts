@@ -86,7 +86,7 @@ const isValidFreetModifier = async (req: Request, res: Response, next: NextFunct
   const {readmore} = req.body as {readmore: string};
 
   // blank readmores will be treated as the freet not having a readmore
-  if (readmore.length > 600) {
+  if (readmore && readmore.length > 600) {
     res.status(413).json({
       error: 'Read more content must be no more than 600 characters.'
     });
@@ -106,7 +106,7 @@ const isValidFreetModifier = async (req: Request, res: Response, next: NextFunct
   if (req.session.userId) {
     const user = await UserCollection.findOneByUserId(req.session.userId);
     if (user.likes.some((id) => id.toString() == freetId)) {
-      res.status(413).json({
+      res.status(403).json({
         error: 'You have already liked this Freet.'
       });
       return;
@@ -126,7 +126,7 @@ const isValidFreetModifier = async (req: Request, res: Response, next: NextFunct
   if (req.session.userId) {
     const user = await UserCollection.findOneByUserId(req.session.userId);
     if (!user.likes.some((id) => id.toString() == freetId)) {
-      res.status(413).json({
+      res.status(403).json({
         error: 'You have not yet liked this Freet.'
       });
       return;

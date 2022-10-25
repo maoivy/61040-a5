@@ -96,8 +96,24 @@ class UserCollection {
       user.bio = userDetails.bio as string;
     }
 
+    if (userDetails.likes) {
+      user.likes = userDetails.likes as Array<Types.ObjectId>;
+    }
+
     await user.save();
     return user;
+    
+  }
+
+  /**
+   * Delete likes for a freet from every user.
+   * Used when the freet in question is deleted.
+   *
+   * @param {string} freetId - The userId of user to delete
+   * @return {Promise<void>}
+   */
+   static async deleteLikesByFreetId(freetId: Types.ObjectId | string): Promise<void> {
+    await UserModel.updateMany({ 'likes': freetId }, { $pull: { 'likes': freetId } })
   }
 
   /**
