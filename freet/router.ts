@@ -78,7 +78,7 @@ router.get(
  * @return {FreetResponse} - The created freet
  * @throws {403} - If the user is not logged in
  * @throws {400} - If the freet content is empty or a stream of empty spaces
- * @throws {413} - If the freet content is more than 140 characters long
+ * @throws {413} - If the freet content is more than 140 characters long or categories are incorrectly formatted/too long
  */
 router.post(
   '/',
@@ -86,10 +86,13 @@ router.post(
     userValidator.isUserLoggedIn,
     freetValidator.isValidFreetContent,
     freetValidator.isValidReadMore,
+    freetValidator.isValidCategories,
   ],
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
-    const freet = await FreetCollection.addOne(userId, req.body.content, req.body.readmore);
+    // drop empty and duplicate categories
+    const categories = [...new Set<string>(req.body.categories.split(',').filter((category: string) => category.length > 0))];
+    const freet = await FreetCollection.addOne(userId, req.body.content, req.body.readmore, categories);
 
     res.status(201).json({
       message: 'Your freet was created successfully.',

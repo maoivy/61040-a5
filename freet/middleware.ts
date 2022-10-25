@@ -136,6 +136,31 @@ const isValidFreetModifier = async (req: Request, res: Response, next: NextFunct
   next();
 };
 
+/**
+ * Checks if the categories in req.body are of the correct format
+ * i.e., comma-separated list of strings, none exceeding 24 characters
+ */
+ const isValidCategories = async (req: Request, res: Response, next: NextFunction) => {
+   if (typeof req.body.categories !== 'string') {
+    res.status(413).json({
+      error: 'Category formatting is invalid.'
+    });
+    return;
+  }
+
+  const categories = req.body.categories.split(',');
+  for (const category of categories) {
+    if (category.length > 24) {
+      res.status(413).json({
+        error: 'Category name ' + category + ' exceed the 24-character limit.'
+      });
+      return;
+    }
+  }
+
+  next();
+};
+
 
 export {
   isValidFreetContent,
@@ -145,4 +170,5 @@ export {
   isValidReadMore,
   canLikeFreet,
   canUnlikeFreet,
+  isValidCategories,
 };
