@@ -175,11 +175,15 @@ The following api routes have already been implemented for you (**Make sure to d
 
 This renders the `index.html` file that will be used to interact with the backend
 
-#### `GET /api/freets` - Get all the freets
+#### `GET /api/freets` - Get freets in user's feed
 
 **Returns**
 
-- An array of all freets sorted in descending order by date modified
+- An array of freets in the user's feed
+
+**Throws**
+
+- `403` if the user is not logged in
 
 #### `GET /api/freets?author=USERNAME` - Get freets by author
 
@@ -443,17 +447,6 @@ Added routes below:
 - `403` if the user is not logged in
 - `404` if the username is invalid
 - `403` if the user is not already following the user
-
-#### `GET /api/feed` - Get freets in feed
-
-**Returns**
-
-- An array of freets in the user's feed
-
-**Throws**
-
-- `400` if `author` is not given
-- `404` if `author` is not a recognized username of any user
 
 #### `GET /api/category?category=CATEGORY` - Get freets in category
 

@@ -84,19 +84,19 @@ class UserCollection {
       user.username = userDetails.username as string;
     }
 
-    if (userDetails.following) {
+    if (userDetails.following !== undefined) {
       user.following = userDetails.following as Array<Types.ObjectId>;
     }
 
-    if (userDetails.followedBy) {
+    if (userDetails.followedBy !== undefined) {
       user.followedBy = userDetails.followedBy as Array<Types.ObjectId>;
     }
 
-    if (userDetails.bio) {
+    if (userDetails.bio !== undefined) {
       user.bio = userDetails.bio as string;
     }
 
-    if (userDetails.likes) {
+    if (userDetails.likes !== undefined) {
       user.likes = userDetails.likes as Array<Types.ObjectId>;
     }
 

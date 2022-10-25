@@ -176,18 +176,16 @@ router.delete(
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
     const followedUser = await UserCollection.findOneByUsername(req.body.username);
-
     const user = await UserCollection.findOneByUserId(userId);
+
     const newFollowing = [...user.following, followedUser._id];
     await UserCollection.updateOne(userId, { following: newFollowing });
     const newFollowedBy = [...followedUser.followedBy, req.session.userId];
-    await UserCollection.updateOne(followedUser._id, { followedBy: newFollowedBy });
-
-    await FeedCollection.updateFeedByAuthor(userId, followedUser._id);
+    const updatedFollowedUser = await UserCollection.updateOne(followedUser._id, { followedBy: newFollowedBy });
 
     res.status(201).json({
       message: 'You successfully followed ' + req.body.username + '.',
-      user: util.constructUserResponse(followedUser),
+      user: util.constructUserResponse(updatedFollowedUser),
     });
   }
 );
@@ -213,18 +211,19 @@ router.delete(
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
     const followedUser = await UserCollection.findOneByUsername(req.params.username);
-
     const user = await UserCollection.findOneByUserId(userId);
-    const newFollowing = user.following.filter((id) => id !== followedUser._id);
+
+    const newFollowing = user.following.filter((id) => id.toString() !== followedUser._id.toString());
+    console.log(newFollowing);
     await UserCollection.updateOne(userId, { following: newFollowing });
     const newFollowedBy = followedUser.followedBy.filter((id) => id !== req.session.userId);
-    await UserCollection.updateOne(followedUser._id, { followedBy: newFollowedBy });
+    const updatedFollowedUser = await UserCollection.updateOne(followedUser._id, { followedBy: newFollowedBy });
 
     await FeedCollection.deleteFromFeedByAuthor(userId, followedUser._id);
 
     res.status(201).json({
       message: 'You successfully unfollowed ' + req.params.username + '.',
-      user: util.constructUserResponse(followedUser),
+      user: util.constructUserResponse(updatedFollowedUser),
     });
   }
 );
