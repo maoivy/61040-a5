@@ -1,4 +1,5 @@
 import type {NextFunction, Request, Response} from 'express';
+import {Types} from 'mongoose';
 import express from 'express';
 import FreetCollection from './collection';
 import * as userValidator from '../user/middleware';
@@ -119,8 +120,6 @@ router.delete(
     freetValidator.isValidFreetModifier,
   ],
   async (req: Request, res: Response) => {
-    // remove it from the likes list of any users that liked it
-    await UserCollection.deleteLikesByFreetId(req.params.freetId);
     await FreetCollection.deleteOne(req.params.freetId);
     res.status(200).json({
       message: 'Your freet was deleted successfully.'
@@ -180,7 +179,7 @@ router.put(
     const user = await UserCollection.findOneByUserId(userId);
     const freet = await FreetCollection.findOne(req.body.freetId);
 
-    await UserCollection.updateOne(userId, { likes: [...user.likes, req.body.freetId] });
+    await UserCollection.updateOne(userId, { likes: [...user.likes, new Types.ObjectId(req.body.freetId)] });
     const updatedFreet = await FreetCollection.updateOne(req.body.freetId, { likes: freet.likes + 1 });
 
     res.status(201).json({

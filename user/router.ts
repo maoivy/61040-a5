@@ -4,7 +4,6 @@ import FreetCollection from '../freet/collection';
 import UserCollection from './collection';
 import * as userValidator from '../user/middleware';
 import * as util from './util';
-import FeedCollection from '../feed/collection';
 
 const router = express.Router();
 
@@ -146,8 +145,7 @@ router.delete(
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
     await UserCollection.deleteOne(userId);
-    await FreetCollection.deleteMany(userId);
-    await FeedCollection.deleteOne(userId);
+    await FreetCollection.deleteManyByAuthor(userId);
     req.session.userId = undefined;
     res.status(200).json({
       message: 'Your account has been deleted successfully.'
@@ -180,7 +178,7 @@ router.delete(
 
     const newFollowing = [...user.following, followedUser._id];
     await UserCollection.updateOne(userId, { following: newFollowing });
-    const newFollowedBy = [...followedUser.followedBy, req.session.userId];
+    const newFollowedBy = [...followedUser.followedBy, user._id];
     const updatedFollowedUser = await UserCollection.updateOne(followedUser._id, { followedBy: newFollowedBy });
 
     res.status(201).json({
@@ -218,8 +216,6 @@ router.delete(
     await UserCollection.updateOne(userId, { following: newFollowing });
     const newFollowedBy = followedUser.followedBy.filter((id) => id !== req.session.userId);
     const updatedFollowedUser = await UserCollection.updateOne(followedUser._id, { followedBy: newFollowedBy });
-
-    await FeedCollection.deleteFromFeedByAuthor(userId, followedUser._id);
 
     res.status(201).json({
       message: 'You successfully unfollowed ' + req.params.username + '.',

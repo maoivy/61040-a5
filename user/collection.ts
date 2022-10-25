@@ -1,7 +1,7 @@
-import type {HydratedDocument, Types} from 'mongoose';
+import {Types} from 'mongoose';
+import type {HydratedDocument} from 'mongoose';
 import type {User} from './model';
 import UserModel from './model';
-import FeedCollection from '../feed/collection'
 
 /**
  * This file contains a class with functionality to interact with users stored
@@ -28,8 +28,6 @@ class UserCollection {
     const user = new UserModel({username, password, dateJoined, bio, following, followedBy, likes});
     await user.save(); // Saves user to MongoDB
 
-    // create a feed
-    await FeedCollection.addOne(user._id);
     return user;
   }
 
@@ -105,16 +103,30 @@ class UserCollection {
     
   }
 
-  /**
-   * Delete likes for a freet from every user.
-   * Used when the freet in question is deleted.
+/**
+   * Delete likes for freets from every user.
+   * Used when the freets in question are deleted.
    *
-   * @param {string} freetId - The userId of user to delete
+   * @param {Array<Types.ObjectId | string>} freetIds - The ids of freets to delete
    * @return {Promise<void>}
    */
-   static async deleteLikesByFreetId(freetId: Types.ObjectId | string): Promise<void> {
-    await UserModel.updateMany({ 'likes': freetId }, { $pull: { 'likes': freetId } })
-  }
+ static async deleteLikesByFreetIds(freetIds: Array<Types.ObjectId | string>): Promise<void> {
+   const freetIdObjects = freetIds.map((id) => new Types.ObjectId(id.toString()));
+   await UserModel.updateMany({ 'likes': { $in: freetIdObjects } }, { $pull: { 'likes': { $in: freetIdObjects } } });
+}
+
+/**
+   * Delete following/followed by records for the user with userId.
+   * Used when the user in question is deleted.
+   *
+   * @param {Types.ObjectId | string} userId - The ids of freets to delete
+   * @return {Promise<void>}
+   */
+ static async deleteFollowers(userId: Types.ObjectId | string): Promise<void> {
+   const userIdObject = new Types.ObjectId(userId.toString());
+   await UserModel.updateMany({ 'following': userIdObject }, { $pull: { 'following': userIdObject } });
+   await UserModel.updateMany({ 'followedBy': userIdObject }, { $pull: { 'followedBy': userIdObject } });
+}
 
   /**
    * Delete a user from the collection.
@@ -123,6 +135,7 @@ class UserCollection {
    * @return {Promise<Boolean>} - true if the user has been deleted, false otherwise
    */
   static async deleteOne(userId: Types.ObjectId | string): Promise<boolean> {
+    await UserCollection.deleteFollowers(userId);
     const user = await UserModel.deleteOne({_id: userId});
     return user !== null;
   }
