@@ -54,5 +54,6 @@ const parseCategories = (categories: string): Array<string> => {
 
 export {
   constructFreetResponse,
+  FreetResponse,
   parseCategories,
 };

@@ -43,17 +43,17 @@ const UserSchema = new Schema({
   },
   // Who the user is following
   following: {
-    type: Array,
+    type: [Schema.Types.ObjectId],
     required: true
   },
   // Who the user is followed by
   followedBy: {
-    type: Array,
+    type: [Schema.Types.ObjectId],
     required: true
   },
   // Freets the user has liked
   likes: {
-    type: Array,
+    type: [Schema.Types.ObjectId],
     required: true
   },
 });

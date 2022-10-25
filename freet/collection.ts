@@ -1,4 +1,5 @@
-import type {HydratedDocument, Types} from 'mongoose';
+import type {HydratedDocument} from 'mongoose';
+import {Types} from 'mongoose';
 import type {Freet} from './model';
 import FreetModel from './model';
 import UserCollection from '../user/collection';
@@ -22,7 +23,7 @@ class FreetCollection {
   static async addOne(authorId: Types.ObjectId | string, content: string, readmore: string, categories: Array<string>): Promise<HydratedDocument<Freet>> {
     const date = new Date();
     const freet = new FreetModel({
-      authorId,
+      authorId: new Types.ObjectId(authorId),
       dateCreated: date,
       content,
       readmore,
@@ -123,52 +124,6 @@ class FreetCollection {
     }
     await FreetModel.deleteMany({authorId});
   }
-
-  // /**
-  //  * Update followers' (and own) feeds with new freet
-  //  *
-  //  * @param {string} freetId - The freetId of the freet to publish
-  //  * @return {Promise<HydratedDocument<Feed>>} - The updated user
-  //  */
-  // static async publishFreetToFollowers(freetId: Types.ObjectId | string): Promise<void> {
-  //   const freet = await FreetModel.findOne({_id: freetId});
-  //   const author = await UserCollection.findOneByUserId(freet.authorId);
-    
-  //   if (freet) {
-  //     for (const followerId of author.followedBy) {
-  //       const feed = await FeedCollection.findFeedByUserId(followerId);
-  //       feed.freets = [...feed.freets, freet]
-  //       await feed.save();
-  //     }
-
-  //     const feed = await FeedCollection.findFeedByUserId(author._id);
-  //     feed.freets = [...feed.freets, freet]
-  //     await feed.save();
-  //   }
-  // }
-
-  // /**
-  //  * Delete a deleted freet from followers' (and own) feeds
-  //  *
-  //  * @param {string} freetId - The freetId of the freet to delete
-  //  * @return {Promise<HydratedDocument<Feed>>} - The updated user
-  //  */
-  //  static async deleteFreetFromFollowers(freetId: Types.ObjectId | string): Promise<void> {
-  //   const freet = await FreetModel.findOne({_id: freetId});
-  //   const author = await UserCollection.findOneByUserId(freet.authorId);
-    
-  //   if (freet) {
-  //     for (const followerId of author.followedBy) {
-  //       const feed = await FeedCollection.findFeedByUserId(followerId);
-  //       feed.freets = feed.freets.filter((feedFreet) => feedFreet._id != freetId)
-  //       await feed.save();
-  //     }
-
-  //     const feed = await FeedCollection.findFeedByUserId(author._id);
-  //     feed.freets = feed.freets.filter((feedFreet) => feedFreet._id != freetId)
-  //     await feed.save();
-  //   }
-  // }
 }
 
 export default FreetCollection;

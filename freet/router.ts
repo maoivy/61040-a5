@@ -17,6 +17,7 @@ const router = express.Router();
  *
  * @return {FreetResponse[]} - A list of all the freets sorted in descending
  *                      order by date modified
+ * @throws {403} - If user is not logged in
  */
 /**
  * Get filtered freets from home feed
@@ -134,8 +135,7 @@ router.delete(
  *
  * @param {string} categories - the new categories for the freet
  * @return {FreetResponse} - the updated freet
- * @throws {403} - if the user is not logged in or not the author of
- *                 of the freet
+ * @throws {403} - if the user is not logged in or not the author of the freet
  * @throws {404} - If the freetId is not valid
  * @throws {413} - If the freet categories are improperly formatted/too long
  */

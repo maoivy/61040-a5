@@ -212,7 +212,6 @@ router.delete(
     const user = await UserCollection.findOneByUserId(userId);
 
     const newFollowing = user.following.filter((id) => id.toString() !== followedUser._id.toString());
-    console.log(newFollowing);
     await UserCollection.updateOne(userId, { following: newFollowing });
     const newFollowedBy = followedUser.followedBy.filter((id) => id !== req.session.userId);
     const updatedFollowedUser = await UserCollection.updateOne(followedUser._id, { followedBy: newFollowedBy });

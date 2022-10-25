@@ -44,6 +44,10 @@ const formsAndHandlers = {
   'get-freets': getFreets,
   'like-freet': likeFreet,
   'unlike-freet': unlikeFreet,
+  'create-collection': createCollection,
+  'edit-collection': editCollection,
+  'delete-collection': deleteCollection,
+  'view-collections-by-user': viewCollectionsByUser,
 };
 
 // Attach handlers to forms

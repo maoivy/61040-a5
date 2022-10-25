@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/stylesheets/style.css">
   <script src="/scripts/freet.js"></script>
   <script src="/scripts/user.js"></script>
+  <script src="/scripts/collection.js"></script>
   <script src="/scripts/index.js"></script>
 </head>
 
@@ -174,6 +175,55 @@
           </div>
           <input type="submit" value="Delete Freet">
         </form>
+
+        <form id="create-collection">
+          <h3>Create Collection</h3>
+          <div>
+            <label for="name">Name:</label>
+            <input id="name" name="name"></input>
+          </div>
+          <input type="submit" value="Create Collection">
+        </form>
+
+        <form id="delete-collection">
+          <h3>Delete Collection</h3>
+          <div>
+            <label for="collectionId">Collection ID:</label>
+            <input id="collectionId" name="collectionId"></input>
+          </div>
+          <input type="submit" value="Delete Collection">
+        </form>
+
+        <form id="edit-collection">
+          <h3>Edit Collection</h3>
+          <div>
+            <label for="collectionId">Collection ID:</label>
+            <input id="collectionId" name="collectionId"></input>
+          </div>
+          <div>
+            <label for="name">Name:</label>
+            <input id="name" name="name"></input>
+          </div>
+          <div>
+            <label for="freetId">Freet ID:</label>
+            <input id="freetId" name="freetId"></input>
+          </div>
+          <div>
+            <label for="addOrRemove">"add" or "remove"?</label>
+            <input id="addOrRemove" name="addOrRemove"></input>
+          </div>
+          <input type="submit" value="Edit Collection">
+        </form>
+
+        <form id="view-collections-by-user">
+          <h3>View Collections By User ID</h3>
+          <div>
+            <label for="userId">User ID:</label>
+            <input id="userId" name="userId">
+          </div>
+          <input type="submit" value="View Collections By User">
+        </form>
+
       </div>
     </section>
     <section>
