@@ -41,6 +41,18 @@ const constructFreetResponse = (freet: HydratedDocument<Freet>): FreetResponse =
   };
 };
 
+/**
+ * Parse a comma-separated string of categories into an array
+ *
+ * @param {string} categories - comma-separated string of categories
+ * @returns {Array<string} - parsed and cleaned array of categories
+ */
+const parseCategories = (categories: string): Array<string> => {
+  // drop empty and duplicate categories
+  return [...new Set<string>(categories.split(',').filter((category: string) => category.length > 0))]
+}
+
 export {
-  constructFreetResponse
+  constructFreetResponse,
+  parseCategories,
 };

@@ -75,6 +75,7 @@ router.get(
  *
  * @param {string} content - The content of the freet
  * @param {string} readmore - The readmore of the freet
+ * @param {string} categories - The categories of the freet
  * @return {FreetResponse} - The created freet
  * @throws {403} - If the user is not logged in
  * @throws {400} - If the freet content is empty or a stream of empty spaces
@@ -90,8 +91,7 @@ router.post(
   ],
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
-    // drop empty and duplicate categories
-    const categories = [...new Set<string>(req.body.categories.split(',').filter((category: string) => category.length > 0))];
+    const categories = util.parseCategories(req.body.categories);
     const freet = await FreetCollection.addOne(userId, req.body.content, req.body.readmore, categories);
 
     res.status(201).json({
@@ -116,7 +116,7 @@ router.delete(
   [
     userValidator.isUserLoggedIn,
     freetValidator.isFreetExistsParams,
-    freetValidator.isValidFreetModifier
+    freetValidator.isValidFreetModifier,
   ],
   async (req: Request, res: Response) => {
     // remove it from the likes list of any users that liked it
@@ -129,17 +129,16 @@ router.delete(
 );
 
 /**
- * Modify a freet
+ * Modify a freet's categories (no other field can be changed by the user)
  *
  * @name PUT /api/freets/:id
  *
- * @param {string} content - the new content for the freet
+ * @param {string} categories - the new categories for the freet
  * @return {FreetResponse} - the updated freet
  * @throws {403} - if the user is not logged in or not the author of
  *                 of the freet
  * @throws {404} - If the freetId is not valid
- * @throws {400} - If the freet content is empty or a stream of empty spaces
- * @throws {413} - If the freet content is more than 140 characters long
+ * @throws {413} - If the freet categories are improperly formatted/too long
  */
 router.put(
   '/:freetId?',
@@ -147,10 +146,11 @@ router.put(
     userValidator.isUserLoggedIn,
     freetValidator.isFreetExistsParams,
     freetValidator.isValidFreetModifier,
-    freetValidator.isValidFreetContent
+    freetValidator.isValidCategories,
   ],
   async (req: Request, res: Response) => {
-    const freet = await FreetCollection.updateOne(req.params.freetId, req.body.content);
+    const categories = util.parseCategories(req.body.categories);
+    const freet = await FreetCollection.updateOne(req.params.freetId, { categories });
     res.status(200).json({
       message: 'Your freet was updated successfully.',
       freet: util.constructFreetResponse(freet)

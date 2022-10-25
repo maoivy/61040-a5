@@ -88,6 +88,10 @@ class FreetCollection {
       freet.likes = freetDetails.likes as number;
     }
 
+    if (freetDetails.categories !== undefined) {
+      freet.categories = freetDetails.categories as Array<string>;
+    }
+
     await freet.save();
     return freet.populate('authorId');
   }
