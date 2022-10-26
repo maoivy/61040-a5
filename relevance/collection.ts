@@ -60,7 +60,7 @@ class RelevanceCollection {
    * @return {Promise<HydratedDocument<Relevance>> | Promise<null> } - The ranking entry for the freet and category, if any
    */
    static async findOneByRelevanceId(relevanceId: Types.ObjectId | string): Promise<HydratedDocument<Relevance>> {
-    return RelevanceModel.findOne({ _id: relevanceId });
+    return RelevanceModel.findOne({ _id: relevanceId }).populate('freetId');
   }
 
   /**
@@ -71,7 +71,7 @@ class RelevanceCollection {
    * @return {Promise<HydratedDocument<Relevance>> | Promise<null> } - The ranking entry for the freet and category, if any
    */
    static async findOneByCategoryAndFreetId(category: string, freetId: Types.ObjectId | string): Promise<HydratedDocument<Relevance>> {
-    return RelevanceModel.findOne({ category, freetId });
+    return RelevanceModel.findOne({ category, freetId }).populate('freetId');
   }
 
   /**
@@ -85,7 +85,7 @@ class RelevanceCollection {
     if (typeof category === 'string') {
       return RelevanceModel.updateOne({ category, freetId }, { active: false }).populate('freetId');
     } else {
-      return RelevanceModel.updateMany({ category, freetId }, { active: false }).populate('freetId');;
+      return RelevanceModel.updateMany({ category, freetId }, { active: false }).populate('freetId');
     }
   }
 
@@ -124,7 +124,7 @@ class RelevanceCollection {
     relevance.irrelevantVoters = newIrrelevantVoters as Array<Types.ObjectId>;
 
     await relevance.save();
-    return relevance;
+    return relevance.populate('freetId');
   }
 
   /**
@@ -161,7 +161,7 @@ class RelevanceCollection {
     relevance.irrelevantVoters = newIrrelevantVoters as Array<Types.ObjectId>;
 
     await relevance.save();
-    return relevance;
+    return relevance.populate('freetId');
   }
 
   /**

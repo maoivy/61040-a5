@@ -1,5 +1,6 @@
 import type {Types, PopulatedDoc, Document, Decimal128} from 'mongoose';
 import {Schema, model} from 'mongoose';
+import type {Freet} from "../freet/model";
 
 /**
  * This file defines the properties stored in a Relevance
@@ -11,6 +12,18 @@ export type Relevance = {
   _id: Types.ObjectId; // MongoDB assigns each object this ID on creation
   category: string;
   freetId: Types.ObjectId;
+  relevanceScore: number;
+  relevantVotes: number;
+  totalVotes: number;
+  relevantVoters: Array<Types.ObjectId>;
+  irrelevantVoters: Array<Types.ObjectId>;
+  active: boolean;
+};
+
+export type PopulatedRelevance = {
+  _id: Types.ObjectId; // MongoDB assigns each object this ID on creation
+  category: string;
+  freetId: Freet;
   relevanceScore: number;
   relevantVotes: number;
   totalVotes: number;

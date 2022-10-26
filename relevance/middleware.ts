@@ -135,7 +135,7 @@ import CollectionCollection from './collection';
 };
 
 /**
- * Checks that current user can vote on relevance specified by freetId and category in req.body
+ * Checks that current user can vote on relevanceId in req.body
  * i.e., they haven't already voted on it
  */
  const isUserCanVote = async (req: Request, res: Response, next: NextFunction) => {
@@ -160,7 +160,7 @@ import CollectionCollection from './collection';
 };
 
 /**
- * Checks that current user can delete their vote on relevance specified by freetId and category in req.params
+ * Checks that current user can delete their vote on relevanceId in req.params
  * i.e., they have already voted on it
  */
  const isUserCanDeleteVote = async (req: Request, res: Response, next: NextFunction) => {
