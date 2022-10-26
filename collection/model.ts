@@ -1,5 +1,6 @@
 import type {Types, PopulatedDoc, Document} from 'mongoose';
 import {Schema, model} from 'mongoose';
+import type {User} from '../user/model';
 
 /**
  * This file defines the properties stored in a Collection
@@ -15,6 +16,14 @@ export type Collection = {
   dateCreated: Date;
 };
 
+export type PopulatedCollection = {
+  _id: Types.ObjectId; // MongoDB assigns each object this ID on creation
+  userId: User;
+  name: string;
+  freets: Array<Types.ObjectId>;
+  dateCreated: Date;
+};
+
 // Mongoose schema definition for interfacing with a MongoDB table
 // Collections stored in this table will have these fields, with the
 // type given by the type property, inside MongoDB
@@ -23,6 +32,7 @@ const CollectionSchema = new Schema<Collection>({
   userId: {
     type: Schema.Types.ObjectId,
     required: true,
+    ref: 'User',
   },
   // The name of the collection
   name: {

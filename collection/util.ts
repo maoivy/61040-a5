@@ -1,11 +1,10 @@
 import type {HydratedDocument, Types} from 'mongoose';
-import type {Freet, PopulatedFreet} from '../freet/model';
-import type {Collection} from './model';
+import type {Collection, PopulatedCollection} from './model';
 
 // Update this if you add a property to the Collection type!
 type CollectionResponse = {
   _id: string;
-  userId: string;
+  user: string;
   name: string;
   freets: Array<Types.ObjectId>;
 };
@@ -18,15 +17,17 @@ type CollectionResponse = {
  * @returns {CollectionResponse} - The collection object formatted for the frontend
  */
 const constructCollectionResponse = (collection: HydratedDocument<Collection>): CollectionResponse => {
-  const collectionCopy: Collection = {
+  const collectionCopy: PopulatedCollection = {
     ...collection.toObject({
       versionKey: false // Cosmetics; prevents returning of __v property
     })
   };
+  const { username } = collectionCopy.userId;
+  delete collectionCopy.userId;
   return {
     ...collectionCopy,
     name: collectionCopy.name.toString(),
-    userId: collectionCopy.userId.toString(),
+    user: username,
     _id: collectionCopy._id.toString(),
     freets: collectionCopy.freets as Array<Types.ObjectId>,
   };

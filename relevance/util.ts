@@ -1,5 +1,4 @@
 import type {HydratedDocument, Types} from 'mongoose';
-import type {Freet, PopulatedFreet} from '../freet/model';
 import type {Relevance} from './model';
 
 // Update this if you add a property to the Relevance type!
