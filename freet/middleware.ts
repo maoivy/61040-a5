@@ -257,9 +257,57 @@ const isValidFreetModifier = async (req: Request, res: Response, next: NextFunct
   const { freetId } = req.query as { freetId: string };
   if (freetId === undefined || freetId.trim() === '') {
     res.status(400).json({
-      error: {
-        freetNotFound: `Freet ID was not given.`
-      }
+      error: `Freet ID was not given.`
+    });
+    return;
+  }
+
+  next();
+};
+
+/**
+ * Checks that no categories are assigned if the freet in req.body is a refreet or reply
+ */
+ const noCategoriesOnRefreetOrReplyCreate = async (req: Request, res: Response, next: NextFunction) => {
+  const { categories, replyTo, refreetOf } = req.body;
+
+  // it's neither a reply nor refreet, so categories can be anything valid
+  const noReply = (replyTo === undefined) || (!replyTo.trim());
+  const noRefreet = (refreetOf === undefined) || (!refreetOf.trim());
+  if (noReply && noRefreet) {
+    next();
+    return;
+  }
+
+  // if categories is defined and non-empty, throw error
+  if (categories !== undefined && categories.trim().length !== 0) {
+    res.status(400).json({
+      error: `Categories cannot be assigned to replies or refreets.`
+    });
+    return;
+  }
+
+  next();
+};
+
+/**
+ * Checks that no categories are assigned if the freet in req.params is a refreet or reply
+ */
+ const noCategoriesOnRefreetOrReplyEdit = async (req: Request, res: Response, next: NextFunction) => {
+  const freetId = req.params.freetId as string;
+  const { categories } = req.body;
+  const freet = await FreetCollection.findOne(freetId);
+
+  // if both are undefined, it's neither a reply nor refreet, so categories can be anything valid
+  if (freet.replyTo === undefined && freet.refreetOf === undefined) {
+    next();
+    return;
+  }
+
+  // if categories is defined and non-empty, throw error
+  if (categories !== undefined && categories.trim().length !== 0) {
+    res.status(400).json({
+      error: `Categories cannot be assigned to replies or refreets.`
     });
     return;
   }
@@ -282,4 +330,6 @@ export {
   isValidRefreetOf,
   isValidReplyTo,
   canRefreetFreet,
+  noCategoriesOnRefreetOrReplyCreate,
+  noCategoriesOnRefreetOrReplyEdit,
 };

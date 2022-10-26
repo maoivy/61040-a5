@@ -49,6 +49,9 @@ const formsAndHandlers = {
   'edit-collection': editCollection,
   'delete-collection': deleteCollection,
   'view-collections-by-user': viewCollectionsByUser,
+  'view-category': viewCategory,
+  'vote-relevance': voteRelevance,
+  'remove-relevance-vote': removeRelevanceVote,
 };
 
 // Attach handlers to forms

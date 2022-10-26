@@ -14,7 +14,7 @@ import UserCollection from '../user/collection';
  */
 class FreetCollection {
   /**
-   * Add a freet to the collection
+   * Add a freet
    *
    * @param {string} authorId - The id of the author of the freet
    * @param {string} content - The id of the content of the freet

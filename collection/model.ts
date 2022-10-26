@@ -2,11 +2,11 @@ import type {Types, PopulatedDoc, Document} from 'mongoose';
 import {Schema, model} from 'mongoose';
 
 /**
- * This file defines the properties stored in a Freet
+ * This file defines the properties stored in a Collection
  * DO NOT implement operations here ---> use collection file
  */
 
-// Type definition for Freet on the backend
+// Type definition for Collection on the backend
 export type Collection = {
   _id: Types.ObjectId; // MongoDB assigns each object this ID on creation
   userId: Types.ObjectId;
@@ -16,7 +16,7 @@ export type Collection = {
 };
 
 // Mongoose schema definition for interfacing with a MongoDB table
-// Freets stored in this table will have these fields, with the
+// Collections stored in this table will have these fields, with the
 // type given by the type property, inside MongoDB
 const CollectionSchema = new Schema<Collection>({
   // The userId of the owner

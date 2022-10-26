@@ -8,6 +8,7 @@
   <script src="/scripts/freet.js"></script>
   <script src="/scripts/user.js"></script>
   <script src="/scripts/collection.js"></script>
+  <script src="/scripts/relevance.js"></script>
   <script src="/scripts/index.js"></script>
 </head>
 
@@ -241,6 +242,36 @@
           <input type="submit" value="View Collections By User">
         </form>
 
+        <form id="view-category">
+          <h3>View Category</h3>
+          <div>
+            <label for="category">Category Name:</label>
+            <input id="category" name="category">
+          </div>
+          <input type="submit" value="View Category">
+        </form>
+
+        <form id="vote-relevance">
+          <h3>Vote Relevance</h3>
+          <div>
+            <label for="relevanceId">Relevance ID:</label>
+            <input id="relevanceId" name="relevanceId">
+          </div>
+          <div>
+            <label for="vote">"relevant" or "irrelevant"?</label>
+            <input id="vote" name="vote">
+          </div>
+          <input type="submit" value="Vote Relevance">
+        </form>
+
+        <form id="remove-relevance-vote">
+          <h3>Remove Relevance Vote</h3>
+          <div>
+            <label for="relevanceId">Relevance ID:</label>
+            <input id="relevanceId" name="relevanceId">
+          </div>
+          <input type="submit" value="Remove Relevance Vote">
+        </form>
       </div>
     </section>
     <section>

@@ -70,16 +70,12 @@ const isCollectionExists = async (req: Request, res: Response, next: NextFunctio
   if (freetId !== undefined) {
     if (addOrRemove === 'add' && collection.freets.includes(freetId)) {
       res.status(400).json({
-        error: {
-          freetNotFound: `Freet ID ${req.body.collectionId} is already in the collection.`
-        }
+        error: `Freet ID ${req.body.collectionId} is already in the collection.`
       });
       return;
     } else if (addOrRemove === 'remove' && !collection.freets.includes(freetId)) {
       res.status(400).json({
-        error: {
-          freetNotFound: `Freet ID ${req.body.collectionId} is not yet in the collection.`
-        }
+        error: `Freet ID ${req.body.collectionId} is not yet in the collection.`
       });
       return;
     }

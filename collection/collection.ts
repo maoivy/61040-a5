@@ -5,20 +5,20 @@ import CollectionModel from './model';
 import UserCollection from '../user/collection';
 
 /**
- * This files contains a class that has the functionality to explore freets
- * stored in MongoDB, including adding, finding, updating, and deleting freets.
+ * This files contains a class that has the functionality to explore collections
+ * stored in MongoDB, including adding, finding, updating, and deleting collections.
  * Feel free to add additional operations in this file.
  *
- * Note: HydratedDocument<Freet> is the output of the FreetModel() constructor,
- * and contains all the information in Freet. https://mongoosejs.com/docs/typescript.html
+ * Note: HydratedDocument<Collection> is the output of the CollectionModel() constructor,
+ * and contains all the information in Collection. https://mongoosejs.com/docs/typescript.html
  */
 class CollectionCollection {
   /**
-   * Add a freet to the collection
+   * Add a collection
    *
-   * @param {string} authorId - The id of the author of the freet
-   * @param {string} content - The id of the content of the freet
-   * @return {Promise<HydratedDocument<Freet>>} - The newly created freet
+   * @param {string} userId - The id of the owner of the collection
+   * @param {string} name - The name of the collection
+   * @return {Promise<HydratedDocument<Collection>>} - The newly created collection
    */
   static async addOne(userId: Types.ObjectId | string, name: string): Promise<HydratedDocument<Collection>> {
     const date = new Date();
@@ -28,7 +28,7 @@ class CollectionCollection {
       freets: new Array<Types.ObjectId>(),
       dateCreated: date,
     });
-    await collection.save(); // Saves freet to MongoDB
+    await collection.save(); // Saves collection to MongoDB
     return collection.populate('userId');
   }
 

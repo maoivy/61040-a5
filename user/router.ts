@@ -1,9 +1,11 @@
 import type {Request, Response} from 'express';
 import express from 'express';
+import {Types} from 'mongoose';
 import FreetCollection from '../freet/collection';
 import UserCollection from './collection';
 import * as userValidator from '../user/middleware';
 import * as util from './util';
+import RelevanceCollection from '../relevance/collection';
 
 const router = express.Router();
 
@@ -143,10 +145,15 @@ router.delete(
     userValidator.isUserLoggedIn
   ],
   async (req: Request, res: Response) => {
-    const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
+    const userId = (req.session.userId as string) ?? '';
     await FreetCollection.cleanCountsByUserId(userId);
+    const freetIds = await FreetCollection.findAllByUserId(userId);
+    await RelevanceCollection.removeVotesByUserId(userId);
+    await RelevanceCollection.deleteByFreetIds(freetIds.map((freet) => new Types.ObjectId(freet._id)));
+
     await UserCollection.deleteFollowers(userId);
     await UserCollection.deleteOne(userId);
+
     await FreetCollection.deleteManyByAuthor(userId);
     req.session.userId = undefined;
     res.status(200).json({

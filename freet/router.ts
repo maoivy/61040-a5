@@ -7,6 +7,7 @@ import * as freetValidator from '../freet/middleware';
 import * as util from './util';
 import type {Freet} from './model';
 import UserCollection from '../user/collection';
+import RelevanceCollection from '../relevance/collection';
 
 const router = express.Router();
 
@@ -81,7 +82,8 @@ router.get(
  * @param {string} replyTo - The freet this freet is replying to
  * @return {FreetResponse} - The created freet
  * @throws {403} - If the user is not logged in
- * @throws {400} - If the freet content is empty or a stream of empty spaces
+ * @throws {400} - If the freet content is empty or a stream of empty spaces,
+ *                 or if categories are specified and the freet is a reply or refreet
  * @throws {413} - If the freet content is more than 140 characters long or categories are incorrectly formatted/too long
  */
 router.post(
@@ -94,6 +96,7 @@ router.post(
     freetValidator.isValidRefreetOf,
     freetValidator.canRefreetFreet,
     freetValidator.isValidReplyTo,
+    freetValidator.noCategoriesOnRefreetOrReplyCreate,
   ],
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
@@ -103,6 +106,11 @@ router.post(
     const refreetOf = (req.body.refreetOf && req.body.refreetOf.trim()) ? req.body.refreetOf : undefined;
     const replyTo = (req.body.replyTo && req.body.replyTo.trim()) ? req.body.replyTo : undefined;
     const freet = await FreetCollection.addOne(userId, content, readmore, categories, refreetOf, replyTo);
+
+    // create a new relevance for each category
+    for (const category of categories) {
+      await RelevanceCollection.addOneOrReactivate(category, freet._id);
+    }
 
     if (refreetOf) {
       // increment refreet count
@@ -146,6 +154,8 @@ router.delete(
   async (req: Request, res: Response) => {
     // decrement refreet/reply counts if applicable
     await FreetCollection.cleanCountsByFreetId(req.params.freetId);
+    // remove relevances 
+    await RelevanceCollection.deleteByFreetIds([new Types.ObjectId(req.params.freetId)]);
 
     await FreetCollection.deleteOne(req.params.freetId);
     res.status(200).json({
@@ -164,6 +174,7 @@ router.delete(
  * @throws {403} - if the user is not logged in or not the author of the freet
  * @throws {404} - If the freetId is not valid
  * @throws {413} - If the freet categories are improperly formatted/too long
+ * @throws {400} - If categories are specified and the freet is a reply or refreet
  */
 router.put(
   '/:freetId?',
@@ -172,10 +183,28 @@ router.put(
     freetValidator.isFreetExistsParams,
     freetValidator.isValidFreetModifier,
     freetValidator.isValidCategories,
+    freetValidator.noCategoriesOnRefreetOrReplyEdit,
   ],
   async (req: Request, res: Response) => {
+    const { freetId } = req.params;
     const categories = util.parseCategories(req.body.categories);
-    const freet = await FreetCollection.updateOne(req.params.freetId, { categories });
+
+    let freet = await FreetCollection.findOne(freetId);
+    for (const newCategory of categories) {
+      // create a new relevance for every new category
+      if (!freet.categories.includes(newCategory)) {
+        await RelevanceCollection.addOneOrReactivate(newCategory, freetId);
+      }
+    }
+    for (const oldCategory of freet.categories) {
+      if (!categories.includes(oldCategory.toString())) {
+        // category was removed, so deactivate it
+        await RelevanceCollection.deactivateByCategoryAndFreetId(oldCategory.toString(), freetId);
+      }
+    }
+
+    freet = await FreetCollection.updateOne(freetId, { categories });
+
     res.status(200).json({
       message: 'Your freet was updated successfully.',
       freet: util.constructFreetResponse(freet)
