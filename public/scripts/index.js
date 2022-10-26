@@ -33,6 +33,7 @@ const formsAndHandlers = {
   'change-username': changeUsername,
   'change-password': changePassword,
   'change-bio': changeBio,
+  'change-filter': changeFilter,
   'sign-in': signIn,
   'sign-out': signOut,
   'view-freets-by-author': viewFreetsByAuthor,

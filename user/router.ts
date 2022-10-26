@@ -100,17 +100,18 @@ router.post(
 );
 
 /**
- * Update a user's profile.
+ * Update a user.
  *
  * @name PUT /api/users
  *
  * @param {string} username - The user's new username
  * @param {string} password - The user's new password
  * @param {string} bio - The user's new bio
+ * @param {string} filter - The user's new feed filter
  * @return {UserResponse} - The updated user
  * @throws {403} - If user is not logged in
  * @throws {409} - If username already taken
- * @throws {400} - If username or password are not of the correct format
+ * @throws {400} - If username or password are not of the correct format, or filter is not of the correct format
  */
 router.put(
   '/',
@@ -120,6 +121,7 @@ router.put(
     userValidator.isUsernameBlankOrNotAlreadyInUse,
     userValidator.isBlankOrValidPassword,
     userValidator.bioNotTooLong,
+    userValidator.isBlankOrValidFilter,
   ],
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn

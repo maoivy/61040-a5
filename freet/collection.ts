@@ -95,6 +95,32 @@ class FreetCollection {
   }
 
   /**
+   * Get the freets in a user's feed
+   *
+   * @param {string} userId - The userId whose feed to find
+   * @return {Promise<HydratedDocument<Freet>[]>} - An array of all of the freets
+   */
+   static async findFeedFreets(userId: Types.ObjectId | string): Promise<Array<HydratedDocument<Freet>>> {
+    const user = await UserCollection.findOneByUserId(userId);
+    const authors = [...user.following, new Types.ObjectId(userId)];
+
+    if (user.filter === 'original') {
+      return FreetModel.find({ 
+        authorId: { $in: authors }, 
+        refreetOf: { $exists: false },
+      }).populate(['authorId', 'refreetOf', 'replyTo']);
+    } else if (user.filter === 'refreets') {
+      return FreetModel.find({ 
+        authorId: { $in: authors }, 
+        refreetOf: { $exists: true },
+      }).populate(['authorId', 'refreetOf', 'replyTo']);
+    } 
+    
+    // default feed: both original freets and refreets
+    return FreetModel.find({ authorId: { $in: authors } }).populate(['authorId', 'refreetOf', 'replyTo']);
+  }
+
+  /**
    * Update a freet with the new content (like/reshare/reply count, categories)
    *
    * @param {string} freetId - The id of the freet to be updated

@@ -27,7 +27,9 @@ class UserCollection {
     const likes = new Array<Types.ObjectId>();
     const refreets = new Array<Types.ObjectId>();
 
-    const user = new UserModel({ username, password, dateJoined, bio, following, followedBy, likes, refreets });
+    const user = new UserModel({ 
+      username, password, dateJoined, bio, following, followedBy, likes, refreets, filter: 'default'
+    });
     await user.save(); // Saves user to MongoDB
 
     return user;
@@ -84,16 +86,20 @@ class UserCollection {
       user.username = userDetails.username as string;
     }
 
+    if (userDetails.bio !== undefined) {
+      user.bio = userDetails.bio as string;
+    }
+
+    if (userDetails.filter) {
+      user.filter = userDetails.filter as string;
+    }
+
     if (userDetails.following !== undefined) {
       user.following = userDetails.following as Array<Types.ObjectId>;
     }
 
     if (userDetails.followedBy !== undefined) {
       user.followedBy = userDetails.followedBy as Array<Types.ObjectId>;
-    }
-
-    if (userDetails.bio !== undefined) {
-      user.bio = userDetails.bio as string;
     }
 
     if (userDetails.likes !== undefined) {

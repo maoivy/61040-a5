@@ -13,6 +13,7 @@ export type User = {
   password: string;
   dateJoined: Date;
   bio: string;
+  filter: string;
   following: Array<Types.ObjectId>;
   followedBy: Array<Types.ObjectId>;
   likes: Array<Types.ObjectId>;
@@ -42,6 +43,13 @@ const UserSchema = new Schema({
   bio: {
     type: String,
   },
+  // The user's current feed filter
+  filter: {
+    type: String,
+    required: true
+  },
+
+  // The below fields are left unpopulated because so far they've been for tracking purposes
   // Who the user is following
   following: {
     type: [Schema.Types.ObjectId],

@@ -51,13 +51,7 @@ router.get(
     }
 
     const userId = (req.session.userId as string)
-    const user = await UserCollection.findOneByUserId(userId);
-    const feed = Array<Freet>();
-
-    for (const followedId of [...user.following, userId]) {
-      const freets = await FreetCollection.findAllByUserId(followedId);
-      feed.push(...freets);
-    }
+    const feed = await FreetCollection.findFeedFreets(userId);
     const response = feed.map(util.constructFreetResponse);
     res.status(200).json(response);
   },

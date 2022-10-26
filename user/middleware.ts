@@ -369,6 +369,22 @@ const isAuthorExists = async (req: Request, res: Response, next: NextFunction) =
   next();
 };
 
+/**
+ * Checks that filter in req.body is valid, i.e., "default", "original", or "refreets"
+ */
+ const isBlankOrValidFilter = async (req: Request, res: Response, next: NextFunction) => {
+  const { filter } = req.body;
+
+  if (![undefined, '', 'default', 'original', 'refreets'].includes(filter)) {
+    res.status(400).json({
+      error: 'Filter must be either "default", "original", or "refreets".'
+    });
+    return;
+  }
+
+  next();
+};
+
 export {
   isCurrentSessionUserExists,
   isUserLoggedIn,
@@ -387,4 +403,5 @@ export {
   bioNotTooLong,
   isNotSelfParams,
   isNotSelfBody,
+  isBlankOrValidFilter,
 };
