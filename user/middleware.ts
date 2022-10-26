@@ -211,20 +211,21 @@ const isUserLoggedOut = (req: Request, res: Response, next: NextFunction) => {
 };
 
 /**
- * Checks if a user with userId as author id in req.query exists
+ * Checks if a user with userId in req.query exists
  */
 const isAuthorExists = async (req: Request, res: Response, next: NextFunction) => {
-  if (!req.query.author) {
+  if (!req.query.userId) {
     res.status(400).json({
-      error: 'Provided author username must be nonempty.'
+      error: 'Provided author userId must be nonempty.'
     });
     return;
   }
 
-  const user = await UserCollection.findOneByUsername(req.query.author as string);
+  const validFormat = Types.ObjectId.isValid(req.query.userId as string);
+  const user = validFormat ? await UserCollection.findOneByUserId(req.query.userId as string) : '';
   if (!user) {
     res.status(404).json({
-      error: `A user with username ${req.query.author as string} does not exist.`
+      error: `A user with userId ${req.query.userId as string} does not exist.`
     });
     return;
   }

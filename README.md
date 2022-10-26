@@ -185,24 +185,26 @@ This renders the `index.html` file that will be used to interact with the backen
 
 - `403` if the user is not logged in
 
-#### `GET /api/freets?author=USERNAME` - Get freets by author
+#### `GET /api/freets?userId=userId` - Get freets by author
 
 **Returns**
 
-- An array of freets created by user with username `author`
+- An array of freets created by user with ID `userId`
 
 **Throws**
 
-- `400` if `author` is not given
-- `404` if `author` is not a recognized username of any user
+- `400` if `userId` is not given
+- `404` if `userId` is not a recognized ID of any user
 
 #### `POST /api/freets` - Create a new freet
 
 **Body**
 
 - `content` _{string}_ - The content of the freet
-- `readmore` _{string}_ (optional) - The content of a read more on the freet
+- `readmore` _{string}_ - The content of a read more on the freet
 - `categories` _{array}_ - The categories of the freet
+- `refreetOf` _{string}_ - The freet this freet is refreeting
+- `replyTo` _{string}_ - The freet this freet is replying to
 
 **Returns**
 
@@ -212,9 +214,8 @@ This renders the `index.html` file that will be used to interact with the backen
 **Throws**
 
 - `403` if the user is not logged in
-- `400` if the freet or readmore content is empty or a stream of empty spaces
-- `413` if the freet content is more than 140 characters long
-- `413` if any category is longer than 50 characters
+- `400` if the freet or readmore content is empty or a stream of empty spaces, or if categories are specified on a refreet/reply
+- `413` if the freet content is more than 140 characters long or if any category is longer than 24 characters
 
 #### `DELETE /api/freets/:freetId?` - Delete an existing freet
 
@@ -224,9 +225,8 @@ This renders the `index.html` file that will be used to interact with the backen
 
 **Throws**
 
-- `403` if the user is not logged in
-- `403` if the user is not the author of the freet
-- `404` if the freetId is invalid
+- `403` if the user is not logged in or not the author of the freet
+- `404` if the freet with freetId is not found
 
 #### `PUT /api/freets/:freetId?` - Update an existing freet
 
@@ -241,9 +241,8 @@ This renders the `index.html` file that will be used to interact with the backen
 
 **Throws**
 
-- `403` if the user is not logged in
-- `404` if the freetId is invalid
-- `403` if the user is not the author of the freet
+- `403` if the user is not logged in or not the author of the freet
+- `404` if thefreetId is invalid
 - `413` if any category is longer than 24 characters
 
 #### `POST /api/users/session` - Sign in user
@@ -326,7 +325,7 @@ This renders the `index.html` file that will be used to interact with the backen
 
 Added routes below:
 
-#### `GET /api/replies?freet=FREETID` - Get replies for freet
+#### `GET /api/replies?freetId=freetId` - Get replies for freet
 
 **Returns**
 

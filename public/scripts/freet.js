@@ -12,7 +12,7 @@ function getFreets(fields) {
 }
 
 function viewFreetsByAuthor(fields) {
-  fetch(`/api/freets?author=${fields.author}`)
+  fetch(`/api/freets?userId=${fields.userId}`)
     .then(showResponse)
     .catch(showResponse);
 }
