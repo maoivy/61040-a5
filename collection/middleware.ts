@@ -42,24 +42,6 @@ const isCollectionExists = async (req: Request, res: Response, next: NextFunctio
   next();
 };
 
-// /**
-//  * Checks if add/remove is specified in req.body, if freetId is supplied
-//  */
-//  const isAddRemoveSpecifiedWithFreet = async (req: Request, res: Response, next: NextFunction) => {
-//   if (req.body.freetId !== undefined) {
-//     if (req.body.addOrRemove === undefined) {
-//       res.status(404).json({
-//         error: {
-//           freetNotFound: `Freet ID ${req.body.collectionId} is invalid and cannot be added/removed.`
-//         }
-//       });
-//       return;
-//     }
-//   }
- 
-//   next();
-// };
-
 /**
  * Checks if freetId can be added or removed (whichever is specified in req.body) from collection
  * If either is undefined, it's OK since it will be ignored
@@ -89,7 +71,7 @@ const isCollectionExists = async (req: Request, res: Response, next: NextFunctio
  */
 const isValidCollectionModifier = async (req: Request, res: Response, next: NextFunction) => {
   const collection = await CollectionCollection.findOne(req.params.collectionId);
-  const userId = collection.userId;
+  const userId = collection.userId._id;
   if (req.session.userId !== userId.toString()) {
     res.status(403).json({
       error: 'Cannot modify other users\' collections.'
