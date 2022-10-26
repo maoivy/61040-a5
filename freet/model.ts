@@ -32,8 +32,8 @@ export type PopulatedFreet = {
   likes: number;
   refreets: number;
   replies: number;
-  refreetOf: Types.ObjectId;
-  replyTo: Types.ObjectId;
+  refreetOf: Freet;
+  replyTo: Freet;
 };
 
 // Mongoose schema definition for interfacing with a MongoDB table
@@ -85,11 +85,13 @@ const FreetSchema = new Schema<Freet>({
   // Will be empty if not
   refreetOf: {
     type: Schema.Types.ObjectId,
+    ref: 'Freet'
   },
   // The freet this freet is replying to (if any)
   // Will be empty if not
   replyTo: {
     type: Schema.Types.ObjectId,
+    ref: 'Freet'
   },
 });
 

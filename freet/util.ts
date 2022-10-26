@@ -36,14 +36,18 @@ const constructFreetResponse = (freet: HydratedDocument<Freet>): FreetResponse =
       versionKey: false // Cosmetics; prevents returning of __v property
     })
   };
-  const {username} = freetCopy.authorId;
+  const { username } = freetCopy.authorId;
   delete freetCopy.authorId;
+  const refreetContent = freetCopy.refreetOf ? freetCopy.refreetOf.content : '';
+  delete freetCopy.refreetOf;
+  const replyContent = freetCopy.replyTo? freetCopy.replyTo.content : '';
+  delete freetCopy.replyTo;
   return {
     ...freetCopy,
     _id: freetCopy._id.toString(),
     author: username,
-    refreetOf: freetCopy.refreetOf ? freetCopy.refreetOf.toString() : "none",
-    replyTo: freetCopy.replyTo ? freetCopy.replyTo.toString() : "none",
+    refreetOf: refreetContent,
+    replyTo: replyContent,
     dateCreated: formatDate(freet.dateCreated),
   };
 };

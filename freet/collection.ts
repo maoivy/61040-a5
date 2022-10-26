@@ -40,7 +40,7 @@ class FreetCollection {
       replyTo,
     });
     await freet.save(); // Saves freet to MongoDB
-    return freet.populate('authorId');
+    return freet.populate(['authorId', 'refreetOf', 'replyTo']);
   }
 
   /**
@@ -50,7 +50,7 @@ class FreetCollection {
    * @return {Promise<HydratedDocument<Freet>> | Promise<null> } - The freet with the given freetId, if any
    */
   static async findOne(freetId: Types.ObjectId | string): Promise<HydratedDocument<Freet>> {
-    return FreetModel.findOne({_id: freetId}).populate('authorId');
+    return FreetModel.findOne({_id: freetId}).populate(['authorId', 'refreetOf', 'replyTo']);
   }
 
   /**
@@ -60,7 +60,7 @@ class FreetCollection {
    */
   static async findAll(): Promise<Array<HydratedDocument<Freet>>> {
     // Retrieves freets and sorts them from most to least recent
-    return FreetModel.find({}).sort({dateCreated: -1}).populate('authorId');
+    return FreetModel.find({}).sort({dateCreated: -1}).populate(['authorId', 'refreetOf', 'replyTo']);
   }
 
   /**
@@ -71,7 +71,7 @@ class FreetCollection {
    */
   static async findAllByUsername(username: string): Promise<Array<HydratedDocument<Freet>>> {
     const author = await UserCollection.findOneByUsername(username);
-    return FreetModel.find({authorId: author._id}).populate('authorId');
+    return FreetModel.find({authorId: author._id}).populate(['authorId', 'refreetOf', 'replyTo']);
   }
 
   /**
@@ -81,7 +81,7 @@ class FreetCollection {
    * @return {Promise<HydratedDocument<Freet>[]>} - An array of all of the freets
    */
    static async findAllByUserId(userId: Types.ObjectId | string): Promise<Array<HydratedDocument<Freet>>> {
-    return FreetModel.find({authorId: userId}).populate('authorId');
+    return FreetModel.find({authorId: userId}).populate(['authorId', 'refreetOf', 'replyTo']);
   }
 
   /**
@@ -91,7 +91,7 @@ class FreetCollection {
    * @return {Promise<HydratedDocument<Freet>[]>} - An array of all of the freets
    */
    static async findAllByReplyTo(freetId: Types.ObjectId | string): Promise<Array<HydratedDocument<Freet>>> {
-    return FreetModel.find({ replyTo: freetId }).populate('authorId');
+    return FreetModel.find({ replyTo: freetId }).populate(['authorId', 'refreetOf', 'replyTo']);
   }
 
   /**
@@ -120,7 +120,7 @@ class FreetCollection {
     }
 
     await freet.save();
-    return freet.populate('authorId');
+    return freet.populate(['authorId', 'refreetOf', 'replyTo']);
   }
 
   /**
@@ -165,11 +165,11 @@ class FreetCollection {
    static async cleanCountsByFreetId(freetId: Types.ObjectId | string): Promise<void> {
     const freet = await FreetCollection.findOne(freetId);
     if (freet.refreetOf) {
-      await FreetModel.updateOne({ _id: freet.refreetOf }, { $inc: { refreets: -1 } });
+      await FreetModel.updateOne({ _id: freet.refreetOf._id }, { $inc: { refreets: -1 } });
     }
 
     if (freet.replyTo) {
-      await FreetModel.updateOne({ _id: freet.replyTo }, { $inc: { replies:  - 1 } })
+      await FreetModel.updateOne({ _id: freet.replyTo._id }, { $inc: { replies:  - 1 } })
     }
   }
 
