@@ -8,6 +8,7 @@ import * as util from './util';
 import type {Freet} from './model';
 import UserCollection from '../user/collection';
 import RelevanceCollection from '../relevance/collection';
+import ReadCollection from '../read/collection';
 
 const router = express.Router();
 
@@ -92,6 +93,7 @@ router.post(
     freetValidator.canRefreetFreet,
     freetValidator.isValidReplyTo,
     freetValidator.noCategoriesOnRefreetOrReplyCreate,
+    freetValidator.canReplyFreet,
   ],
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
@@ -151,6 +153,8 @@ router.delete(
     await FreetCollection.cleanCountsByFreetId(req.params.freetId);
     // remove relevances 
     await RelevanceCollection.deleteByFreetIds([new Types.ObjectId(req.params.freetId)]);
+    // remove read records
+    await ReadCollection.deleteManyByFreet(req.params.freetId);
 
     await FreetCollection.deleteOne(req.params.freetId);
     res.status(200).json({

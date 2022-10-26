@@ -1,7 +1,6 @@
 import type {NextFunction, Request, Response} from 'express';
 import {Types} from 'mongoose';
 import express from 'express';
-import FreetCollection from './collection';
 import * as userValidator from '../user/middleware';
 import * as freetValidator from '../freet/middleware';
 import * as relevanceValidator from './middleware';

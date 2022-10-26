@@ -2,6 +2,7 @@ import type {Request, Response, NextFunction} from 'express';
 import {Types} from 'mongoose';
 import FreetCollection from '../freet/collection';
 import UserCollection from '../user/collection';
+import ReadCollection from '../read/collection';
 
 /**
  * Checks if a freet with freetId in req.params exists
@@ -145,11 +146,25 @@ const isValidFreetContent = (req: Request, res: Response, next: NextFunction) =>
   const user = await UserCollection.findOneByUserId(req.session.userId);
   const { refreetOf } = req.body as { refreetOf: string };
 
-  if (user.refreets.some((id) => id.toString() === refreetOf)) {
-    res.status(403).json({
-      error: 'You have already refreeted this Freet.'
-    });
-    return;
+  if (refreetOf) {
+    if (user.refreets.some((id) => id.toString() === refreetOf)) {
+      res.status(403).json({
+        error: 'You have already refreeted this Freet.'
+      });
+      return;
+    }
+
+    const freet = await FreetCollection.findOne(refreetOf);
+    if (freet.readmore) {
+      // has read more, check for a read record
+      const read = await ReadCollection.findOneByFreetAndUser(refreetOf, req.session.userId);
+      if (!read) {
+        res.status(403).json({
+          error: 'You can\'t refreet this Freet before you read the read more.'
+        });
+        return;
+      }
+    }
   }
 
   next();
@@ -204,6 +219,20 @@ const isValidFreetModifier = async (req: Request, res: Response, next: NextFunct
     return;
   }
 
+  const freet = await FreetCollection.findOne(freetId);
+  console.log(freet);
+  if (freet.readmore) {
+    console.log("here");
+    // has read more, check for a read record
+    const read = await ReadCollection.findOneByFreetAndUser(freetId, req.session.userId);
+    if (!read) {
+      res.status(403).json({
+        error: 'You can\'t like this Freet before you read the read more.'
+      });
+      return;
+    }
+  }
+
   next();
 };
 
@@ -220,6 +249,31 @@ const isValidFreetModifier = async (req: Request, res: Response, next: NextFunct
       error: 'You have not yet liked this Freet.'
     });
     return;
+  }
+
+  next();
+};
+
+/**
+ * Checks if the user can reply to the freet replyTo in req.body, if applicable
+ * i.e., it has no read more or it does and the user has read it
+ */
+ const canReplyFreet = async (req: Request, res: Response, next: NextFunction) => {
+  const replyTo = req.body.replyTo;
+  const { userId } = req.session;
+
+  if (replyTo) {
+    const freet = await FreetCollection.findOne(replyTo);
+    if (freet.readmore) {
+      // has read more, check for a read record
+      const read = await ReadCollection.findOneByFreetAndUser(replyTo, userId);
+      if (!read) {
+        res.status(403).json({
+          error: 'You can\'t reply to this Freet before you read the read more.'
+        });
+        return;
+      }
+    }
   }
 
   next();
@@ -332,4 +386,5 @@ export {
   canRefreetFreet,
   noCategoriesOnRefreetOrReplyCreate,
   noCategoriesOnRefreetOrReplyEdit,
+  canReplyFreet,
 };

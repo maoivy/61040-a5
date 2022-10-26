@@ -53,6 +53,7 @@ const formsAndHandlers = {
   'view-category': viewCategory,
   'vote-relevance': voteRelevance,
   'remove-relevance-vote': removeRelevanceVote,
+  'read-freet': readFreet,
 };
 
 // Attach handlers to forms

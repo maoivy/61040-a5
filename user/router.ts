@@ -6,6 +6,7 @@ import UserCollection from './collection';
 import * as userValidator from '../user/middleware';
 import * as util from './util';
 import RelevanceCollection from '../relevance/collection';
+import ReadCollection from '../read/collection';
 
 const router = express.Router();
 
@@ -155,6 +156,8 @@ router.delete(
 
     await UserCollection.deleteFollowers(userId);
     await UserCollection.deleteOne(userId);
+    
+    await ReadCollection.deleteManyByUser(userId);
 
     await FreetCollection.deleteManyByAuthor(userId);
     req.session.userId = undefined;

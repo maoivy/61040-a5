@@ -3,6 +3,7 @@ import {Types} from 'mongoose';
 import type {Freet} from './model';
 import FreetModel from './model';
 import UserCollection from '../user/collection';
+import ReadCollection from '../read/collection';
 
 /**
  * This files contains a class that has the functionality to explore freets
@@ -40,6 +41,10 @@ class FreetCollection {
       replyTo,
     });
     await freet.save(); // Saves freet to MongoDB
+    // you've read your own Freet
+    if (readmore) {
+      await ReadCollection.addOne(freet._id, new Types.ObjectId(authorId));
+    }
     return freet.populate(['authorId', 'refreetOf', 'replyTo']);
   }
 
@@ -60,7 +65,7 @@ class FreetCollection {
    */
   static async findAll(): Promise<Array<HydratedDocument<Freet>>> {
     // Retrieves freets and sorts them from most to least recent
-    return FreetModel.find({}).sort({dateCreated: -1}).populate(['authorId', 'refreetOf', 'replyTo']);
+    return FreetModel.find({}).sort({ dateCreated: -1 }).populate(['authorId', 'refreetOf', 'replyTo']);
   }
 
   /**
@@ -108,16 +113,16 @@ class FreetCollection {
       return FreetModel.find({ 
         authorId: { $in: authors }, 
         refreetOf: { $exists: false },
-      }).populate(['authorId', 'refreetOf', 'replyTo']);
+      }).sort({ dateCreated: -1 }).populate(['authorId', 'refreetOf', 'replyTo']);
     } else if (user.filter === 'refreets') {
       return FreetModel.find({ 
         authorId: { $in: authors }, 
         refreetOf: { $exists: true },
-      }).populate(['authorId', 'refreetOf', 'replyTo']);
+      }).sort({ dateCreated: -1 }).populate(['authorId', 'refreetOf', 'replyTo']);
     } 
     
     // default feed: both original freets and refreets
-    return FreetModel.find({ authorId: { $in: authors } }).populate(['authorId', 'refreetOf', 'replyTo']);
+    return FreetModel.find({ authorId: { $in: authors } }).sort({ dateCreated: -1 }).populate(['authorId', 'refreetOf', 'replyTo']);
   }
 
   /**

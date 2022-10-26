@@ -15,25 +15,25 @@ type RelevanceResponse = {
  * Transform a raw Relevance object from the database into an object
  * with all the information needed by the frontend
  *
- * @param {HydratedDocument<Freet>} category - A category
- * @returns {RelevanceResponse} - The category object formatted for the frontend
+ * @param {HydratedDocument<Freet>} relevance - A relevance
+ * @returns {RelevanceResponse} - The relevance object formatted for the frontend
  */
-const constructRelevanceResponse = (category: HydratedDocument<Relevance>): RelevanceResponse => {
-  const categoryCopy: PopulatedRelevance = {
-    ...category.toObject({
+const constructRelevanceResponse = (relevance: HydratedDocument<Relevance>): RelevanceResponse => {
+  const relevanceCopy: PopulatedRelevance = {
+    ...relevance.toObject({
       versionKey: false // Cosmetics; prevents returning of __v property
     })
   };
-  const { content } = categoryCopy.freetId;
-  delete categoryCopy.freetId;
+  const { content } = relevanceCopy.freetId;
+  delete relevanceCopy.freetId;
   return {
-    ...categoryCopy,
-    _id: categoryCopy._id.toString(),
-    category: categoryCopy.category.toString(),
+    ...relevanceCopy,
+    _id: relevanceCopy._id.toString(),
+    category: relevanceCopy.category.toString(),
     freet: content,
-    relevanceScore: categoryCopy.relevanceScore,
-    relevantVotes: categoryCopy.relevantVotes,
-    totalVotes: categoryCopy.totalVotes,
+    relevanceScore: relevanceCopy.relevanceScore,
+    relevantVotes: relevanceCopy.relevantVotes,
+    totalVotes: relevanceCopy.totalVotes,
   };
 };
 

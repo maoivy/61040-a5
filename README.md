@@ -502,3 +502,19 @@ Added routes below:
 - `403` if the user is not logged in
 - `404` if the collectionId is invalid
 - `403` if the user is not the owner of the collection
+
+#### `POST /api/read/` - Read a Freet with a read more
+
+**Body**
+
+- `freetId` _{string}_ - The ID of the Freet to read
+
+**Returns**
+
+- A success message
+- An object with the read record
+
+**Throws**
+
+- `403` if the user is not logged in or has already read the Freet, or if the Freet has no readmore
+- `404` if freet with freetId is not found

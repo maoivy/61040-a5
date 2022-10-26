@@ -9,6 +9,7 @@
   <script src="/scripts/user.js"></script>
   <script src="/scripts/collection.js"></script>
   <script src="/scripts/relevance.js"></script>
+  <script src="/scripts/read.js"></script>
   <script src="/scripts/index.js"></script>
 </head>
 
@@ -24,6 +25,15 @@
         <form id="get-freets">
           <h3>Get Freets</h3>
           <input type="submit" value="Get Freets">
+        </form>
+
+        <form id="read-freet">
+          <h3>Read Freet</h3>
+          <div>
+            <label for="freetId">Freet ID:</label>
+            <input id="freetId" name="freetId">
+          </div>
+          <input type="submit" value="Read Freet">
         </form>
 
         <form id="follow-user">
