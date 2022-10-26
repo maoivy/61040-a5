@@ -1,6 +1,7 @@
 import type {Types, PopulatedDoc, Document} from 'mongoose';
 import {Schema, model} from 'mongoose';
 import type {User} from '../user/model';
+import type {Freet} from '../freet/model';
 
 /**
  * This file defines the properties stored in a Collection
@@ -20,7 +21,7 @@ export type PopulatedCollection = {
   _id: Types.ObjectId; // MongoDB assigns each object this ID on creation
   userId: User;
   name: string;
-  freets: Array<Types.ObjectId>;
+  freets: Array<Freet>;
   dateCreated: Date;
 };
 
@@ -40,9 +41,10 @@ const CollectionSchema = new Schema<Collection>({
     required: true
   },
   // The freets in the collection
-  freets: {
-    type: [Schema.Types.ObjectId],
-  },
+  freets: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Freet'
+  }],
    // The date the collection was created
    dateCreated: {
     type: Date,

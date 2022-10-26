@@ -6,7 +6,7 @@ type CollectionResponse = {
   _id: string;
   user: string;
   name: string;
-  freets: Array<Types.ObjectId>;
+  freets: Array<string>;
 };
 
 /**
@@ -29,7 +29,7 @@ const constructCollectionResponse = (collection: HydratedDocument<Collection>): 
     name: collectionCopy.name.toString(),
     user: username,
     _id: collectionCopy._id.toString(),
-    freets: collectionCopy.freets as Array<Types.ObjectId>,
+    freets: collectionCopy.freets.map((freet) => freet.content),
   };
 };
 

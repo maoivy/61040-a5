@@ -29,7 +29,7 @@ class CollectionCollection {
       dateCreated: date,
     });
     await collection.save(); // Saves collection to MongoDB
-    return collection.populate('userId');
+    return collection.populate(['userId', 'freets']);
   }
 
   /**
@@ -39,7 +39,7 @@ class CollectionCollection {
    * @return {Promise<HydratedDocument<Collection>> | Promise<null> } - The collection with the given collectionId, if any
    */
    static async findOne(collectionId: Types.ObjectId | string): Promise<HydratedDocument<Collection>> {
-    return CollectionModel.findOne({_id: collectionId}).populate('userId');
+    return CollectionModel.findOne({_id: collectionId}).populate(['userId', 'freets']);
   }
 
   /**
@@ -50,7 +50,7 @@ class CollectionCollection {
    */
   static async findAllByUsername(username: string): Promise<Array<HydratedDocument<Collection>>> {
     const user = await UserCollection.findOneByUsername(username);
-    return CollectionModel.find({userId: user._id}).populate('userId');
+    return CollectionModel.find({ userId: user._id }).populate(['userId', 'freets']);
   }
 
   /**
@@ -60,7 +60,7 @@ class CollectionCollection {
    * @return {Promise<HydratedDocument<Collection>[]>} - An array of all of the freets
    */
    static async findAllByUserId(userId: Types.ObjectId | string): Promise<Array<HydratedDocument<Collection>>> {
-    return CollectionModel.find({ userId }).populate('userId');
+    return CollectionModel.find({ userId }).populate(['userId', 'freets']);
   }
 
   /**
@@ -81,7 +81,7 @@ class CollectionCollection {
     }
 
     await collection.save();
-    return collection.populate('userId');
+    return collection.populate(['userId', 'freets']);
   }
 
   /**

@@ -59,7 +59,7 @@ router.post(
 
     res.status(201).json({
       message: 'Your collection was created successfully.',
-      freet: util.constructCollectionResponse(collection)
+      collection: util.constructCollectionResponse(collection)
     });
   }
 );
@@ -121,7 +121,7 @@ router.put(
     const { freetId, name, addOrRemove } = req.body;
 
     const collection = await CollectionCollection.findOne(collectionId);
-    let newFreets = [...collection.freets];
+    let newFreets = collection.freets.map((freet) => freet._id);
     // note that freet will only be changed if freetId and addOrRemove are both specified
     // otherwise ignored (unless freetId is invalid)
     if (freetId !== undefined) {

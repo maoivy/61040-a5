@@ -49,15 +49,16 @@ const isCollectionExists = async (req: Request, res: Response, next: NextFunctio
  const canAddOrRemoveFreet = async (req: Request, res: Response, next: NextFunction) => {
   const collection = await CollectionCollection.findOne(req.params.collectionId);
   const { freetId, addOrRemove } = req.body;
+  const freets = collection.freets.map((freet) => freet._id.toString())
   if (freetId !== undefined) {
-    if (addOrRemove === 'add' && collection.freets.includes(freetId)) {
+    if (addOrRemove === 'add' && freets.includes(freetId.toString())) {
       res.status(400).json({
-        error: `Freet ID ${req.body.collectionId} is already in the collection.`
+        error: `Freet ID ${freetId} is already in the collection.`
       });
       return;
-    } else if (addOrRemove === 'remove' && !collection.freets.includes(freetId)) {
+    } else if (addOrRemove === 'remove' && !freets.includes(freetId.toString())) {
       res.status(400).json({
-        error: `Freet ID ${req.body.collectionId} is not yet in the collection.`
+        error: `Freet ID ${freetId} is not yet in the collection.`
       });
       return;
     }
