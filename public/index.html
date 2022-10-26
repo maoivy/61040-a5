@@ -119,6 +119,15 @@
           <input type="submit" value="View Freets By Author">
         </form>
 
+        <form id="view-replies">
+          <h3>View Replies for Freet</h3>
+          <div>
+            <label for="freetId">Freet ID:</label>
+            <input id="freetId" name="freetId">
+          </div>
+          <input type="submit" value="View Replies for Freet">
+        </form>
+
         <form id="create-freet">
           <h3>Create Freet</h3>
           <div>
@@ -132,6 +141,14 @@
           <div>
             <label for="categories">Categories (comma-separated list):</label>
             <textarea id="categories" name="categories"></textarea>
+          </div>
+          <div>
+            <label for="refreetOf">Freet ID to Refreet:</label>
+            <input id="refreetOf" name="refreetOf">
+          </div>
+          <div>
+            <label for="replyTo">Freet ID to Reply To:</label>
+            <input id="replyTo" name="replyTo">
           </div>
           <input type="submit" value="Create Freet">
         </form>

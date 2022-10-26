@@ -2,6 +2,7 @@ import {Types} from 'mongoose';
 import type {HydratedDocument} from 'mongoose';
 import type {User} from './model';
 import UserModel from './model';
+import FreetCollection from '../freet/collection';
 
 /**
  * This file contains a class with functionality to interact with users stored
@@ -24,8 +25,9 @@ class UserCollection {
     const following = new Array<Types.ObjectId>();
     const followedBy = new Array<Types.ObjectId>();
     const likes = new Array<Types.ObjectId>();
+    const refreets = new Array<Types.ObjectId>();
 
-    const user = new UserModel({username, password, dateJoined, bio, following, followedBy, likes});
+    const user = new UserModel({ username, password, dateJoined, bio, following, followedBy, likes, refreets });
     await user.save(); // Saves user to MongoDB
 
     return user;
@@ -98,6 +100,10 @@ class UserCollection {
       user.likes = userDetails.likes as Array<Types.ObjectId>;
     }
 
+    if (userDetails.refreets !== undefined) {
+      user.refreets = userDetails.refreets as Array<Types.ObjectId>;
+    }
+
     await user.save();
     return user;
     
@@ -114,6 +120,7 @@ class UserCollection {
    const freetIdObjects = freetIds.map((id) => new Types.ObjectId(id.toString()));
    await UserModel.updateMany({ 'likes': { $in: freetIdObjects } }, { $pull: { 'likes': { $in: freetIdObjects } } });
 }
+
 
 /**
    * Delete following/followed by records for the user with userId.
@@ -135,7 +142,6 @@ class UserCollection {
    * @return {Promise<Boolean>} - true if the user has been deleted, false otherwise
    */
   static async deleteOne(userId: Types.ObjectId | string): Promise<boolean> {
-    await UserCollection.deleteFollowers(userId);
     const user = await UserModel.deleteOne({_id: userId});
     return user !== null;
   }

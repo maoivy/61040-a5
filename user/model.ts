@@ -16,6 +16,7 @@ export type User = {
   following: Array<Types.ObjectId>;
   followedBy: Array<Types.ObjectId>;
   likes: Array<Types.ObjectId>;
+  refreets: Array<Types.ObjectId>;
 };
 
 // Mongoose schema definition for interfacing with a MongoDB table
@@ -53,6 +54,11 @@ const UserSchema = new Schema({
   },
   // Freets the user has liked
   likes: {
+    type: [Schema.Types.ObjectId],
+    required: true
+  },
+  // Freets the user has refreeted
+  refreets: {
     type: [Schema.Types.ObjectId],
     required: true
   },

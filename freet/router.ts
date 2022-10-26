@@ -33,7 +33,6 @@ const router = express.Router();
  * @name GET /api/freets?authorId=id
  *
  * @return {FreetResponse[]} - An array of freets created by user with id, authorId
- * @throws {400} - If authorId is not given
  * @throws {404} - If no user has given authorId
  *
  */
@@ -78,6 +77,8 @@ router.get(
  * @param {string} content - The content of the freet
  * @param {string} readmore - The readmore of the freet
  * @param {string} categories - The categories of the freet
+ * @param {string} refreetOf - The freet this freet is refreeting
+ * @param {string} replyTo - The freet this freet is replying to
  * @return {FreetResponse} - The created freet
  * @throws {403} - If the user is not logged in
  * @throws {400} - If the freet content is empty or a stream of empty spaces
@@ -90,11 +91,33 @@ router.post(
     freetValidator.isValidFreetContent,
     freetValidator.isValidReadMore,
     freetValidator.isValidCategories,
+    freetValidator.isValidRefreetOf,
+    freetValidator.canRefreetFreet,
+    freetValidator.isValidReplyTo,
   ],
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
     const categories = util.parseCategories(req.body.categories);
-    const freet = await FreetCollection.addOne(userId, req.body.content, req.body.readmore, categories);
+    const { content, readmore } = req.body;
+    // if refreetOf/replyTo is not defined, pass in undefined 
+    const refreetOf = (req.body.refreetOf && req.body.refreetOf.trim()) ? req.body.refreetOf : undefined;
+    const replyTo = (req.body.replyTo && req.body.replyTo.trim()) ? req.body.replyTo : undefined;
+    const freet = await FreetCollection.addOne(userId, content, readmore, categories, refreetOf, replyTo);
+
+    if (refreetOf) {
+      // increment refreet count
+      const refreeted = await FreetCollection.findOne(refreetOf);
+      await FreetCollection.updateOne(refreetOf, { refreets: refreeted.refreets + 1 });
+      // add refreet to user's refreet list
+      const user = await UserCollection.findOneByUserId(userId);
+      await UserCollection.updateOne(userId, { refreets: [...user.refreets, new Types.ObjectId(refreetOf)] })
+    }
+
+    if (replyTo) {
+      // increment reply count
+      const replied = await FreetCollection.findOne(replyTo);
+      await FreetCollection.updateOne(replyTo, { replies: replied.replies + 1 });
+    }
 
     res.status(201).json({
       message: 'Your freet was created successfully.',
@@ -121,6 +144,9 @@ router.delete(
     freetValidator.isValidFreetModifier,
   ],
   async (req: Request, res: Response) => {
+    // decrement refreet/reply counts if applicable
+    await FreetCollection.cleanCountsByFreetId(req.params.freetId);
+
     await FreetCollection.deleteOne(req.params.freetId);
     res.status(200).json({
       message: 'Your freet was deleted successfully.'
@@ -218,6 +244,31 @@ router.put(
       message: 'You have successfully unliked freet ' + req.params.freetId + '.',
       freet: util.constructFreetResponse(updatedFreet)
     });
+  }
+);
+
+/**
+ * Get freets by reply parent.
+ *
+ * @name GET /api/freets/reply?freetId=freetId
+ *
+ * @return {FreetResponse[]} - An array of freets created by user with id, authorId
+ * @throws {400} - If freetId is not given
+ * @throws {404} - If no freet has the given freetId
+ *
+ */
+ router.get(
+  '/reply',
+  [
+    userValidator.isUserLoggedIn,
+    freetValidator.isFreetGiven,
+    freetValidator.isFreetExistsQuery,
+  ],
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { freetId } = req.query as { freetId: string }
+    const replies = await FreetCollection.findAllByReplyTo(freetId);
+    const response = replies.map(util.constructFreetResponse);
+    res.status(200).json(response);
   }
 );
 

@@ -17,6 +17,13 @@ function viewFreetsByAuthor(fields) {
     .catch(showResponse);
 }
 
+function viewReplies(fields) {
+  fetch(`/api/freets/reply?freetId=${fields.freetId}`)
+    .then(showResponse)
+    .catch(showResponse);
+}
+
+
 function createFreet(fields) {
   fetch('/api/freets', {method: 'POST', body: JSON.stringify(fields), headers: {'Content-Type': 'application/json'}})
     .then(showResponse)

@@ -8,6 +8,11 @@ type FreetResponse = {
   author: string;
   dateCreated: string;
   content: string;
+  likes: number,
+  refreets: number,
+  replies: number,
+  replyTo: string,
+  refreetOf: string,
 };
 
 /**
@@ -37,6 +42,8 @@ const constructFreetResponse = (freet: HydratedDocument<Freet>): FreetResponse =
     ...freetCopy,
     _id: freetCopy._id.toString(),
     author: username,
+    refreetOf: freetCopy.refreetOf ? freetCopy.refreetOf.toString() : "none",
+    replyTo: freetCopy.replyTo ? freetCopy.replyTo.toString() : "none",
     dateCreated: formatDate(freet.dateCreated),
   };
 };

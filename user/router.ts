@@ -144,6 +144,8 @@ router.delete(
   ],
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
+    await FreetCollection.cleanCountsByUserId(userId);
+    await UserCollection.deleteFollowers(userId);
     await UserCollection.deleteOne(userId);
     await FreetCollection.deleteManyByAuthor(userId);
     req.session.userId = undefined;

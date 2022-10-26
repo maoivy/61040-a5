@@ -16,6 +16,10 @@ export type Freet = {
   readmore: string;
   categories: Array<String>;
   likes: number;
+  refreets: number;
+  replies: number;
+  refreetOf: Types.ObjectId;
+  replyTo: Types.ObjectId;
 };
 
 export type PopulatedFreet = {
@@ -26,6 +30,10 @@ export type PopulatedFreet = {
   readmore: string;
   categories: Array<String>;
   likes: number;
+  refreets: number;
+  replies: number;
+  refreetOf: Types.ObjectId;
+  replyTo: Types.ObjectId;
 };
 
 // Mongoose schema definition for interfacing with a MongoDB table
@@ -42,12 +50,12 @@ const FreetSchema = new Schema<Freet>({
   // The date the freet was created
   dateCreated: {
     type: Date,
-    required: true
+    required: true,
   },
   // The content of the freet
   content: {
     type: String,
-    required: true
+    required: true,
   },
   // The readmore of the freet
   readmore: {
@@ -56,10 +64,32 @@ const FreetSchema = new Schema<Freet>({
   // The categories of the freet
   categories: {
     type: [String],
+    required: true,
   },
   // The number of likes on the freet
   likes: {
     type: Number,
+    required: true,
+  },
+  // The number of refreets on the freet
+  refreets: {
+    type: Number,
+    required: true,
+  },
+  // The number of replies on the freet
+  replies: {
+    type: Number,
+    required: true,
+  },
+  // The freet this freet is refreeting (if any)
+  // Will be empty if not
+  refreetOf: {
+    type: Schema.Types.ObjectId,
+  },
+  // The freet this freet is replying to (if any)
+  // Will be empty if not
+  replyTo: {
+    type: Schema.Types.ObjectId,
   },
 });
 

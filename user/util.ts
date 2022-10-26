@@ -10,6 +10,8 @@ type UserResponse = {
   dateJoined: string;
   following: Array<string>;
   followedBy: Array<string>;
+  likes: Array<string>;
+  refreets: Array<string>;
 };
 
 /**
@@ -42,6 +44,8 @@ const constructUserResponse = (user: HydratedDocument<User>): UserResponse => {
     dateJoined: formatDate(user.dateJoined),
     following: user.following.map((id) => id.toString()),
     followedBy: user.followedBy.map((id) => id.toString()),
+    likes: user.likes.map((id) => id.toString()),
+    refreets: user.refreets.map((id) => id.toString()),
   };
 };
 
