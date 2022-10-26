@@ -202,7 +202,7 @@ This renders the `index.html` file that will be used to interact with the backen
 
 - `content` _{string}_ - The content of the freet
 - `readmore` _{string}_ - The content of a read more on the freet
-- `categories` _{array}_ - The categories of the freet
+- `categories` _{string}_ - The categories of the freet, comma-separated
 - `refreetOf` _{string}_ - The freet this freet is refreeting
 - `replyTo` _{string}_ - The freet this freet is replying to
 
@@ -215,7 +215,7 @@ This renders the `index.html` file that will be used to interact with the backen
 
 - `403` if the user is not logged in
 - `400` if the freet or readmore content is empty or a stream of empty spaces, or if categories are specified on a refreet/reply
-- `413` if the freet content is more than 140 characters long or if any category is longer than 24 characters
+- `413` if the freet content is more than 140 characters long, if any category is longer than 24 characters, or if categories formatted incorrectly
 
 #### `DELETE /api/freets/:freetId?` - Delete an existing freet
 
@@ -232,7 +232,7 @@ This renders the `index.html` file that will be used to interact with the backen
 
 **Body**
 
-- `categories` _{array}_ - The new categories of the freet
+- `categories` _{string}_ - The new categories of the freet, comma-separated
 
 **Returns**
 
@@ -241,9 +241,10 @@ This renders the `index.html` file that will be used to interact with the backen
 
 **Throws**
 
+- `400` if categories are specified and the freet is a reply/refreet
 - `403` if the user is not logged in or not the author of the freet
-- `404` if thefreetId is invalid
-- `413` if any category is longer than 24 characters
+- `404` if the freetId is invalid
+- `413` if any category is longer than 24 characters or if categories is formatted incorrectly
 
 #### `POST /api/users/session` - Sign in user
 
@@ -325,34 +326,16 @@ This renders the `index.html` file that will be used to interact with the backen
 
 Added routes below:
 
-#### `GET /api/replies?freetId=freetId` - Get replies for freet
+#### `GET /api/freets/reply?freetId=freetId` - Get replies for freet
 
 **Returns**
 
-- An array of replies to the freet with id `freet`
+- An array of replies to the freet with id `freetId`
 
 **Throws**
 
 - `400` if `freet` is not given
 - `404` if `freet` is not a valid freet id
-
-#### `POST /api/replies/:freetId?` - Make a reply to freet
-
-**Body**
-
-- `content` _{string}_ - The content of the reply
-- `readmore` _{string}_ (optional) - The content of a read more on the reply
-
-**Returns**
-
-- A success message
-- A object with the created reply
-
-**Throws**
-
-- `403` if the user is not logged in
-- `400` if the reply or readmore content is empty or a stream of empty spaces
-- `413` if the reply content is more than 140 characters long
 
 #### `POST /api/freets/like` - Like a freet
 
@@ -366,9 +349,8 @@ Added routes below:
 
 **Throws**
 
-- `403` if the user is not logged in
+- `403` if the user is not logged in or already liked the freet
 - `404` if the freetId is invalid
-- `403` if the user already liked the freet
 
 #### `DELETE /api/freets/like/:freetId?` - Unlike a freet
 
@@ -381,40 +363,8 @@ Added routes below:
 
 **Throws**
 
-- `403` if the user is not logged in
+- `403` if the user is not logged in or if the user has not already liked the freet
 - `404` if the freetId is invalid
-- `403` if the user has not already liked the freet
-
-#### `POST /api/reshare` - Reshare a freet
-
-**Body**
-- `freetId` _{string}_ - The freet to be reshared
-
-**Returns**
-
-- A success message
-- An object with the reshared freet
-
-**Throws**
-
-- `403` if the user is not logged in
-- `404` if the freetId is invalid
-- `403` if the user already reshared the freet
-
-#### `DELETE /api/reshare/:freetId?` - Unreshare a freet
-
-**Body**
-
-**Returns**
-
-- A success message
-- An object with the unreshared freet
-
-**Throws**
-
-- `403` if the user is not logged in
-- `404` if the freetId is invalid
-- `403` if the user has not already reshared the freet
 
 #### `POST /api/users/follow` - Follow a user
 
@@ -428,9 +378,8 @@ Added routes below:
 
 **Throws**
 
-- `403` if the user is not logged in
+- `403` if the user is not logged in or if the user is already following the user
 - `404` if the userId is invalid
-- `403` if the user is already following the user
 
 #### `DELETE /api/users/follow/:username?` - Unfollow a user
 
@@ -443,11 +392,10 @@ Added routes below:
 
 **Throws**
 
-- `403` if the user is not logged in
+- `403` if the user is not logged in or if the user is not already following the user
 - `404` if the username is invalid
-- `403` if the user is not already following the user
 
-#### `GET /api/category?category=CATEGORY` - Get freets in category
+#### `GET /api/relevance?category=CATEGORY` - Get freets in category
 
 **Returns**
 
@@ -455,60 +403,58 @@ Added routes below:
 
 **Throws**
 
-- `400` if `category` is not given
+- `403` if user is not logged in
+- `400` if `category` is undefined or blank
 - `413` if `category` is longer than 24 characters
-
-#### `GET /api/category/trending` - Get worldwide trending categories for the past 24 hours.
-
-**Returns**
-
-- An array of trending categories
-
-**Throws**
 
 #### `POST /api/relevance` - Vote on a freet's relevance in a category
 
 **Body**
 
-- `freetId` _{string}_ - The freet to be voted on
-- `categoryId` _{string}_ - The category for the relevance
-- `relevance` _{boolean}_ - The user's relevance vote (true if relevant, false if irrelevant)
+- `relevanceId` _{string}_ - The id of the relevance entry
+- `vote` _{string}_ - The user's relevance vote ("relevant" or "irrelevant")
 
 **Returns**
 
 - A success message
-- An object with the followed user
+- An object with the updated relevance entry
 
 **Throws**
 
-- `403` if the user is not logged in
-- `404` if the userId or freetId is invalid
-- `403` if the freet is not in the category
-- `403` if the user has already voted on the relevance of the freet in the category
+- `403` if the user is not logged in or has already voted on the relevance
+- `404` if the relevanceId is invalid
 
-#### `DELETE /api/relevance/:freetId?/:categoryId?` - Remove vote on a freet's relevance in a category
+#### `DELETE /api/relevance/:relevanceId?` - Remove vote on a freet's relevance in a category
 
 **Body**
 
 **Returns**
 
 - A success message
-- An object with the unfollowed user
+- An object with the updated relevance entry
+
+**Throws**
+
+- `403` if the user is not logged in or has not yet voted on the relevance
+- `404` if the relevanceId is invalid
+
+#### `GET /api/collection?userId=userId` - Get a user's collections
+
+**Returns**
+
+- A success message
+- An object with the user's collections
 
 **Throws**
 
 - `403` if the user is not logged in
-- `404` if the userId or freetId is invalid
-- `403` if the freet is not in the category
-- `403` if the user has not already voted on the relevance of the freet in the category
+- `404` if user with userId is not found
 
-#### `POST /api/collections/` - Create a collection
+#### `POST /api/collection/` - Create a collection
 
 **Body**
 
 - `name` _{string}_ - The name of the collection, limited to 24 characters
-- `privacy` _{string}_ (optional) - The privacy setting for the collection (public, followers only, private); public by default
-- `freets` _{array}_ (optional) - The ids of freets to add to the collection; blank by default
 
 **Returns**
 
@@ -517,17 +463,17 @@ Added routes below:
 
 **Throws**
 
-- `403` if the user is not logged in
-- `403` if the user already has a collection with that name
+- `400` if the collection name is undefined or empty
+- `403` if the user is not logged in or if the user already has a collection with that name
 - `413` if collection name is longer than 24 characters
 
-#### `PUT /api/collections/:collectionId?` - Update a collection
+#### `PUT /api/collection/:collectionId?` - Update a collection
 
 **Body** _(no need to add fields that are not being changed)_
 
 - `name` _{string}_ - The name of the collection, limited to 24 characters
-- `privacy` _{string}_ (optional) - The privacy setting for the collection (public, followers only, private); public by default
-- `freets` _{array}_ (optional) - The ids of freets to add to the collection; blank by default
+- `freetId` _{string}_ - The id of the freet to add to the collection
+- `addOrRemove` _{string}_ - Whether to "add" or "remove" the freet
 
 **Returns**
 
@@ -536,13 +482,13 @@ Added routes below:
 
 **Throws**
 
-- `403` if the user is not logged in
-- `404` if the collectionId is invalid
-- `403` if the user is not the owner of the collection
-- `403` if the user already has a collection with that name
+- `400` if the new collection name is blank or a stream of empty spaces, or if both freet and add/remove are specified and either the freet is already in or not already in the collection, respectively
+- `403` if the user is not logged in or not the author of the collection
+- `404` if the collectionId is invalid or collection with collectionId is not found
+- `409` if the user already has a collection with that name
 - `413` if collection name is longer than 24 characters
 
-#### `DELETE /api/collections/:collectionId?` - Delete a collection
+#### `DELETE /api/collection/:collectionId?` - Delete a collection
 
 **Body**
 

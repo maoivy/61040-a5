@@ -15,7 +15,7 @@ const router = express.Router();
 /**
  * Get collections by userId
  *
- * @name GET /api/freets?user=userId
+ * @name GET /api/collection?userId=userId
  *
  * @return {CollectionResponse[]} - A list of all the collections sorted in descending
  *                      order by date created
@@ -97,11 +97,13 @@ router.delete(
  * @param {string} freetId - the id of a freet to add or remove
  * @param {string} addOrRemove - whether to add or remove the freet specified
  * @return {FreetResponse} - the updated collection
- * @throws {403} - if the user is not logged in or not the author of the collection
- * @throws {404} - if the collectionId is not valid or the freet does not exist
- * @throws {413} - if the new collection name exceeds 24 characters
  * @throws {400} - if the new collection name is blank or a stream of empty spaces, or if both freet and add/remove are
  *                 specified and either the freet is already in or not already in the collection, respectively
+ * @throws {403} - if the user is not logged in or not the author of the collection
+ * @throws {404} - if the collectionId is not valid or the freet does not exist
+ * @throws {409} - if the user already has a collection with that name
+ * @throws {413} - if the new collection name exceeds 24 characters
+
  */
 router.put(
   '/:collectionId?',
